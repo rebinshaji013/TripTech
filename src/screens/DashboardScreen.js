@@ -9,6 +9,7 @@ import {
   ActivityIndicator 
 } from 'react-native';
 import { Icon } from 'react-native-paper'; // ✅ using react-native-paper icons
+
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTodaysTrips, searchTrips } from '../store/tripActions';
 
@@ -82,7 +83,7 @@ const DashboardScreen = ({ navigation }) => {
           onPress={handleFilterPress}
         >
           <Icon 
-            source="filter" 
+            source="tune-variant" 
             size={24} 
             color={showFilters ? '#007AFF' : '#666'} 
           />
