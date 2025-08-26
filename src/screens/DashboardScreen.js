@@ -18,7 +18,7 @@ const DashboardScreen = ({ navigation }) => {
   const { todaysTrips, loading, error } = useSelector(state => state.trip);
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [filter, setFilter] = useState('all'); // 'all', 'upcoming', 'completed'
+  const [filter, setFilter] = useState('all'); // 'all', 'upcoming', 'completed'     
 
   useEffect(() => {
     dispatch(fetchTodaysTrips());
