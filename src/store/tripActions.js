@@ -21,6 +21,7 @@ export const fetchTodaysTrips = () => async (dispatch) => {
         date: '09-AUG-2025',
         pickup: '123 Main St. Oak Ave, Amytown',
         passengerName: 'John Smith',
+        status: 'on-trip'
       },
       {
         id: '002',
@@ -28,6 +29,7 @@ export const fetchTodaysTrips = () => async (dispatch) => {
         date: '09-AUG-2025',
         pickup: '789 Pine Ln. Oak Ave, Amytown',
         passengerName: 'Sarah Johnson',
+        status: 'pending'
       },
       {
         id: '003',
@@ -35,6 +37,7 @@ export const fetchTodaysTrips = () => async (dispatch) => {
         date: '09-AUG-2025',
         pickup: '456 Oak Ave, Main St. Amytown',
         passengerName: 'Michael Brown',
+        status: 'upcoming'
       },
       {
         id: '004',
@@ -42,6 +45,7 @@ export const fetchTodaysTrips = () => async (dispatch) => {
         date: '09-AUG-2025',
         pickup: '321 Elm St. Maple Ave, Amytown',
         passengerName: 'Emily Davis',
+        status: 'upcoming'
       },
     ];
     

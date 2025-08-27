@@ -7,6 +7,7 @@ const Fonts = {
     medium: 'Urbanist-Medium',
     semiBold: 'Urbanist-SemiBold',
     bold: 'Urbanist-Bold',
+    extraBold: 'Urbanist-ExtraBold',
     // Add other weights if you have them
   },
 

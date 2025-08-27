@@ -13,6 +13,12 @@ import { Icon } from 'react-native-paper'; // ✅ using react-native-paper icons
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTodaysTrips, searchTrips } from '../store/tripActions';
 
+import Fonts from '../utilities/fonts';
+import useColors from '../hooks/useColors';
+import CommonHeader from '../components/CommonHeader';
+
+const colors = useColors();
+
 const DashboardScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { todaysTrips, loading, error } = useSelector(state => state.trip);
@@ -27,6 +33,10 @@ const DashboardScreen = ({ navigation }) => {
   const handleSearch = (text) => {
     setSearchTerm(text);
     dispatch(searchTrips(text));
+  };
+
+  const handleNotificationPress = () => {
+    //navigation.navigate('Notifications');
   };
 
   const handleTripPress = (trip) => {
@@ -55,10 +65,7 @@ const DashboardScreen = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
       {/* Header with Logo & App Name */}
-      <View style={styles.header}>
-        <Icon source="car" size={32} color="#007AFF" />
-        <Text style={styles.appName}>TripTech</Text>
-      </View>
+      <CommonHeader onNotificationPress={handleNotificationPress} />
 
       {/* Search Bar with Filter Icon */}
       <View style={styles.searchFilterContainer}>
@@ -85,7 +92,7 @@ const DashboardScreen = ({ navigation }) => {
           <Icon 
             source="tune-variant" 
             size={24} 
-            color={showFilters ? '#007AFF' : '#666'} 
+            color={showFilters ? colors.primary : '#666'} 
           />
         </TouchableOpacity>
       </View>
@@ -147,36 +154,49 @@ const DashboardScreen = ({ navigation }) => {
       ) : (
         todaysTrips.map((trip) => (
           <TouchableOpacity 
-            key={trip.id}
-            style={styles.tripCard}
-            onPress={() => handleTripPress(trip)}
-          >
-            <View style={styles.tripHeader}>
-              <Text style={styles.tripId}>TRIP #{trip.id}</Text>
-            </View>
-            
-            <View style={styles.tripDetails}>
-              <View style={styles.timeDateRow}>
-                <Icon source="clock-outline" size={16} color="#666" />
-                <Text style={styles.timeText}>{trip.time}</Text>
-                
-                <Icon source="calendar" size={16} color="#666" style={styles.dateIcon} />
-                <Text style={styles.dateText}>{trip.date}</Text>
-              </View>
-              
-              <View style={styles.pickupRow}>
-                <Icon source="map-marker" size={16} color="#666" />
-                <Text style={styles.pickupText}>Pickup: {trip.pickup}</Text>
-              </View>
+  key={trip.id}
+  style={styles.tripCard}
+  onPress={() => handleTripPress(trip)}
+>
+  {/* Status Container - Top Right Corner */}
+  <View style={[
+    styles.statusContainer,
+    { 
+      backgroundColor: trip.status === 'pending' ? colors.success : 
+                      trip.status === 'upcoming' ? colors.error :
+                      trip.status === 'on-trip' ? colors.warning :
+                      colors.primaryLight 
+    }
+  ]}>
+    <Text style={styles.statusText}>
+      {trip.status === 'pending' ? 'Completed' :
+       trip.status === 'upcoming' ? 'Cancelled' :
+       trip.status === 'on-trip' ? 'on-trip' : 'Upcoming'}
+    </Text>
+  </View>
 
-              {trip.passengerName ? (
-                <View style={styles.passengerRow}>
-                  <Icon source="account" size={16} color="#666" />
-                  <Text style={styles.passengerText}>{trip.passengerName}</Text>
-                </View>
-              ) : null}
-            </View>
-          </TouchableOpacity>
+  <View style={styles.tripHeader}>
+    <Text style={styles.tripId}>TRIP #{trip.id}</Text>
+  </View>
+  
+  <View style={styles.tripDetails}>
+    <View style={styles.timeDateRow}>
+      <Icon source="clock-outline" size={13} color={colors.primaryLight} />
+      <Text style={styles.timeText}>{trip.time}</Text>
+      
+      
+    </View>
+    <View style={styles.timeDateRow}>
+      <Icon source="calendar" size={13} color={colors.primaryLight} style={styles.dateIcon} />
+      <Text style={styles.dateText}>{trip.date}</Text>
+    </View>
+    
+    <View style={styles.pickupRow}>
+      <Icon source="map-marker" size={13} color={colors.primaryLight} />
+      <Text style={styles.pickupText}>Pickup: {trip.pickup}</Text>
+    </View>
+  </View>
+</TouchableOpacity>
         ))
       )}
     </ScrollView>
@@ -199,9 +219,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   appName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#007AFF',
+    fontSize: 18,
+    fontFamily: Fonts.urbanist.semiBold,
+    fontWeight: '600',
+    color: colors.primary,
     marginLeft: 10,
   },
   searchFilterContainer: {
@@ -253,8 +274,8 @@ const styles = StyleSheet.create({
     borderColor: '#e0e0e0',
   },
   filterOptionActive: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   filterOptionText: {
     fontSize: 12,
@@ -271,43 +292,68 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#333',
+    fontSize: 16,
+    fontFamily: Fonts.urbanist.extraBold,
+    fontWeight: '800',
+    marginVertical: 25,
+    color: colors.primary,
   },
   tripCard: {
     backgroundColor: 'white',
-    borderRadius: 8,
+    borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-    borderLeftWidth: 4,
-    borderLeftColor: '#007AFF',
+    //shadowColor: '#000',
+    //shadowOffset: { width: 0, height: 2 },
+    //shadowOpacity: 0.1,
+    //shadowRadius: 4,
+    elevation: 3,
+    //borderLeftWidth: 4,
+    //borderLeftColor: colors.primary,
+    position: 'relative', // Needed for absolute positioning of status
+  },
+  
+  statusContainer: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    minWidth: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  statusText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
   tripHeader: {
     marginBottom: 12,
   },
   tripId: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 12,
+    fontFamily: Fonts.urbanist.extraBold,
+    fontWeight: '800',
+    color: colors.primary,
   },
   tripDetails: {
     marginLeft: 4,
+    flexDirection: 'column',
   },
   timeDateRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
+    marginTop: 5,
   },
   timeText: {
-    fontSize: 14,
+    fontSize: 11,
     color: '#666',
+    fontFamily: Fonts.urbanist.semiBold,
     marginLeft: 4,
     marginRight: 16,
   },
@@ -315,18 +361,21 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   dateText: {
-    fontSize: 14,
+    fontSize: 11,
     color: '#666',
+    fontFamily: Fonts.urbanist.semiBold,
     marginLeft: 4,
   },
   pickupRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
+    marginTop: 5,
   },
   pickupText: {
     fontSize: 14,
     color: '#666',
+    fontFamily: Fonts.urbanist.semiBold,
     marginLeft: 4,
     flex: 1,
     flexWrap: 'wrap',
@@ -373,4 +422,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DashboardScreen;
+export default DashboardScreen

@@ -1,98 +1,227 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { setUser } from '../store/tripSlice';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { Icon } from "react-native-paper";
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/tripSlice";
+import Colors from "../utilities/colors";
+import Fonts from "../utilities/fonts";
 
-const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function LoginScreen({ navigation }) {
   const dispatch = useDispatch();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isReturningUser, setIsReturningUser] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
     // Simple validation
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter both email and password');
+    if (!email.includes("@")) {
+      setError("The provided email is incorrect or invalid");
       return;
     }
 
-    // Mock login - replace with actual API call
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    setError("");
+    setIsReturningUser(true);
+    
+    // Mock user data - replace with actual authentication
     const user = {
       id: 1,
-      name: 'John Doe',
+      name: "John Doe",
       email: email,
     };
     
     dispatch(setUser(user));
+   // navigation.navigate("Dashboard");
+  };
+
+  const handleForgotPassword = () => {
+    navigation.navigate("ForgotPassword");
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign In</Text>
-      
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Sign In</Text>
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: Colors.background }]}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+    >
+      {/* Logo & App Name */}
+      <Text style={[styles.logoText, { color: Colors.primary }]}>
+        TripTech
+      </Text>
+
+      {/* Welcome Text */}
+      <Text style={[styles.welcomeText, { color: Colors.primary }]}>
+        {isReturningUser
+          ? "Welcome back!\nGlad to see you, Again!"
+          : "Welcome !!\nPlease login to continue."}
+      </Text>
+
+      {/* Email Input */}
+      <View style={[styles.inputContainer, { backgroundColor: Colors.gray100 }]}>
+        <Icon source="email-outline" size={20} color={Colors.gray600} style={styles.icon} />
+        <TextInput
+          placeholder="Enter your email"
+          placeholderTextColor={Colors.gray500}
+          style={[styles.input, { color: Colors.textPrimary }]}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+      </View>
+
+      {/* Password Input */}
+      <View style={[styles.inputContainer, { backgroundColor: Colors.gray100 }]}>
+        <Icon source="lock-outline" size={20} color={Colors.gray600} style={styles.icon} />
+        <TextInput
+          placeholder="Enter your password"
+          placeholderTextColor={Colors.gray500}
+          style={[styles.input, { color: Colors.textPrimary }]}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+        />
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Icon
+            source={showPassword ? 'eye-off-outline' : 'eye-outline'}
+            size={20}
+            color={Colors.gray600}
+            style={styles.eyeIcon}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* Forgot Password */}
+      <TouchableOpacity style={styles.forgotPassword} onPress={handleForgotPassword}>
+        <Text style={[styles.forgotPasswordText, { color: Colors.primary }]}>
+          Forgot Password?
+        </Text>
       </TouchableOpacity>
-      
-      <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-        <Text style={styles.link}>Forgot Password?</Text>
+
+      {/* Error Message */}
+      {error ? (
+        <View style={styles.errorWrapper}>
+          <Icon source="alert-circle" size={18} color={Colors.error} style={{ marginRight: 6 }} />
+          <Text style={[styles.errorText, { color: Colors.error }]}>{error}</Text>
+        </View>
+      ) : null}
+
+      {/* Login Button */}
+      <TouchableOpacity 
+        style={[styles.loginButton, { backgroundColor: Colors.primary }]} 
+        onPress={handleLogin}
+      >
+        <Text style={[styles.loginButtonText, { color: Colors.white }]}>
+          Login
+        </Text>
       </TouchableOpacity>
-    </View>
+
+      {/* Terms & Privacy */}
+      <Text style={[styles.termsText, { color: Colors.textSecondary }]}>
+        By continuing, you agree to our{" "}
+        <Text style={[styles.linkText, { color: Colors.primary }]}>
+          Terms of Service
+        </Text>{" "}
+        and{" "}
+        <Text style={[styles.linkText, { color: Colors.primary }]}>
+          Privacy Policy
+        </Text>.
+      </Text>
+    </KeyboardAvoidingView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 30,
-    textAlign: 'center',
+  logoText: {
+    fontSize: 32,
+    fontFamily: Fonts.urbanist.bold,
+    textAlign: "center",
+    marginBottom: 60,
+  },
+  welcomeText: {
+    fontSize: 20,
+    fontFamily: Fonts.urbanist.bold,
+    textAlign: "center",
+    marginBottom: 60,
+    lineHeight: 28,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    marginBottom: 24,
+    height: 56,
+    width: "100%",
+  },
+  icon: {
+    marginRight: 12,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: '#fff',
+    flex: 1,
+    height: "100%",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: Fonts.urbanist.regular,
   },
-  link: {
-    color: '#007AFF',
-    textAlign: 'center',
+  eyeIcon: { 
+    marginLeft: 12,
+  },
+  forgotPassword: {
+    alignSelf: "flex-end",
+    marginBottom: 24,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    fontFamily: Fonts.urbanist.medium,
+  },
+  errorWrapper: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: 16,
+    paddingHorizontal: 8,
+  },
+  errorText: {
+    fontSize: 14,
+    fontFamily: Fonts.urbanist.medium,
+  },
+  loginButton: {
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 24,
+  },
+  loginButtonText: {
+    fontSize: 16,
+    fontFamily: Fonts.urbanist.semiBold,
+  },
+  termsText: {
+    fontSize: 12,
+    fontFamily: Fonts.urbanist.regular,
+    textAlign: "center",
+    lineHeight: 18,
+  },
+  linkText: {
+    fontFamily: Fonts.urbanist.medium,
   },
 });
-
-export default LoginScreen;

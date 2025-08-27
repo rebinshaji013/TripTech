@@ -11,6 +11,7 @@ import LoginScreen from '../screens/LoginScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import TripsScreen from '../screens/TripsScreen';
+import RatingScreen from '../screens/RatingScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import TripInformationScreen from '../screens/TripInformationScreen';
 
@@ -29,6 +30,8 @@ function DashboardTabs() {
             iconName = 'home';
           } else if (route.name === 'Trips') {
             iconName = 'truck';
+          } else if(route.name === 'Ratings'){
+            iconName = 'star-circle';
           } else if (route.name === 'Profile') {
             iconName = 'account-circle';
           }
@@ -43,22 +46,24 @@ function DashboardTabs() {
         },
         tabBarActiveTintColor: '#007AFF',
         tabBarInactiveTintColor: 'gray',
+        headerShown: false, // Hide headers for tab screens
       })}
     >
       <Tab.Screen 
         name="Home" 
         component={DashboardScreen} 
-        options={{ title: 'Home' }}
       />
       <Tab.Screen 
         name="Trips" 
         component={TripsScreen} 
-        options={{ title: 'Trips' }}
       />
+      <Tab.Screen
+        name ="Ratings"
+        component={RatingScreen}
+        />
       <Tab.Screen 
         name="Profile" 
         component={ProfileScreen} 
-        options={{ title: 'Profile' }}
       />
     </Tab.Navigator>
   );
@@ -72,46 +77,46 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
-          headerStyle: {
-            backgroundColor: '#007AFF',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
+          headerShown: false, // Hide headers by default
         }}
       >
         {!isAuthenticated ? (
-          // Auth screens
+          // Auth screens - all headers hidden
           <>
             <Stack.Screen 
               name="Welcome" 
               component={WelcomeScreen} 
-              options={{ headerShown: false }}
             />
             <Stack.Screen 
               name="Login" 
               component={LoginScreen} 
-              options={{ title: 'Sign In' }}
             />
             <Stack.Screen 
               name="ForgotPassword" 
               component={ForgotPasswordScreen} 
-              options={{ title: 'Reset Password' }}
             />
           </>
         ) : (
-          // App screens
+          // App screens - most headers hidden, show only for specific screens
           <>
             <Stack.Screen 
               name="Dashboard" 
               component={DashboardTabs} 
-              options={{ headerShown: false }}
             />
             <Stack.Screen 
               name="TripInformation" 
               component={TripInformationScreen} 
-              options={{ title: 'Trip Details' }}
+              options={{ 
+                headerShown: false,
+                title: 'Trip Details',
+                headerStyle: {
+                  backgroundColor: '#007AFF',
+                },
+                headerTintColor: '#fff',
+                headerTitleStyle: {
+                  fontWeight: 'bold',
+                },
+              }}
             />
           </>
         )}
