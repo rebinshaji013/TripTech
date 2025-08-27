@@ -24,7 +24,8 @@ const DashboardScreen = ({ navigation }) => {
   const { todaysTrips, loading, error } = useSelector(state => state.trip);
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [filter, setFilter] = useState('all'); // 'all', 'upcoming', 'completed'     
+  const [filter, setFilter] = useState('all'); // 'all', 'upcoming', 'completed'
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc', 'desc'
 
   useEffect(() => {
     dispatch(fetchTodaysTrips());
@@ -51,6 +52,11 @@ const DashboardScreen = ({ navigation }) => {
     setFilter(filterType);
     setShowFilters(false);
     // You can implement filter logic here or dispatch a filter action
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    // You can implement sorting logic here
   };
 
   if (loading && todaysTrips.length === 0) {
@@ -139,8 +145,17 @@ const DashboardScreen = ({ navigation }) => {
         </View>
       ) : null}
 
-      {/* Today's Trip List Section */}
-      <Text style={styles.sectionTitle}>Today's Trip List</Text>
+      {/* Today's Trip List Section with Sort Icon */}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Today's Trip List</Text>
+        <TouchableOpacity onPress={toggleSortOrder} style={styles.sortButton}>
+          <Icon 
+            source={sortOrder === 'asc' ? 'sort-ascending' : 'sort-descending'} 
+            size={20} 
+            color={colors.primary} 
+          />
+        </TouchableOpacity>
+      </View>
 
       {loading ? (
         <ActivityIndicator size="small" color="#007AFF" style={styles.loadingIndicator} />
@@ -154,49 +169,47 @@ const DashboardScreen = ({ navigation }) => {
       ) : (
         todaysTrips.map((trip) => (
           <TouchableOpacity 
-  key={trip.id}
-  style={styles.tripCard}
-  onPress={() => handleTripPress(trip)}
->
-  {/* Status Container - Top Right Corner */}
-  <View style={[
-    styles.statusContainer,
-    { 
-      backgroundColor: trip.status === 'pending' ? colors.success : 
-                      trip.status === 'upcoming' ? colors.error :
-                      trip.status === 'on-trip' ? colors.warning :
-                      colors.primaryLight 
-    }
-  ]}>
-    <Text style={styles.statusText}>
-      {trip.status === 'pending' ? 'Completed' :
-       trip.status === 'upcoming' ? 'Cancelled' :
-       trip.status === 'on-trip' ? 'on-trip' : 'Upcoming'}
-    </Text>
-  </View>
+            key={trip.id}
+            style={styles.tripCard}
+            onPress={() => handleTripPress(trip)}
+          >
+            {/* Status Container - Top Right Corner */}
+            <View style={[
+              styles.statusContainer,
+              { 
+                backgroundColor: trip.status === 'pending' ? colors.success : 
+                                trip.status === 'upcoming' ? colors.error :
+                                trip.status === 'on-trip' ? colors.warning :
+                                colors.primaryLight 
+              }
+            ]}>
+              <Text style={styles.statusText}>
+                {trip.status === 'pending' ? 'Completed' :
+                 trip.status === 'upcoming' ? 'Cancelled' :
+                 trip.status === 'on-trip' ? 'on-trip' : 'Upcoming'}
+              </Text>
+            </View>
 
-  <View style={styles.tripHeader}>
-    <Text style={styles.tripId}>TRIP #{trip.id}</Text>
-  </View>
-  
-  <View style={styles.tripDetails}>
-    <View style={styles.timeDateRow}>
-      <Icon source="clock-outline" size={13} color={colors.primaryLight} />
-      <Text style={styles.timeText}>{trip.time}</Text>
-      
-      
-    </View>
-    <View style={styles.timeDateRow}>
-      <Icon source="calendar" size={13} color={colors.primaryLight} style={styles.dateIcon} />
-      <Text style={styles.dateText}>{trip.date}</Text>
-    </View>
-    
-    <View style={styles.pickupRow}>
-      <Icon source="map-marker" size={13} color={colors.primaryLight} />
-      <Text style={styles.pickupText}>Pickup: {trip.pickup}</Text>
-    </View>
-  </View>
-</TouchableOpacity>
+            <View style={styles.tripHeader}>
+              <Text style={styles.tripId}>TRIP #{trip.id}</Text>
+            </View>
+            
+            <View style={styles.tripDetails}>
+              <View style={styles.timeDateRow}>
+                <Icon source="clock-outline" size={13} color={colors.primaryLight} />
+                <Text style={styles.timeText}>{trip.time}</Text>
+              </View>
+              <View style={styles.timeDateRow}>
+                <Icon source="calendar" size={13} color={colors.primaryLight} style={styles.dateIcon} />
+                <Text style={styles.dateText}>{trip.date}</Text>
+              </View>
+              
+              <View style={styles.pickupRow}>
+                <Icon source="map-marker" size={13} color={colors.primaryLight} />
+                <Text style={styles.pickupText}>Pickup: {trip.pickup}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
         ))
       )}
     </ScrollView>
@@ -291,28 +304,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#e0e0e0',
     marginBottom: 20,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 25,
+  },
   sectionTitle: {
     fontSize: 16,
     fontFamily: Fonts.urbanist.extraBold,
     fontWeight: '800',
-    marginVertical: 25,
     color: colors.primary,
+  },
+  sortButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#f5f5f5',
   },
   tripCard: {
     backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    //shadowColor: '#000',
-    //shadowOffset: { width: 0, height: 2 },
-    //shadowOpacity: 0.1,
-    //shadowRadius: 4,
     elevation: 3,
-    //borderLeftWidth: 4,
-    //borderLeftColor: colors.primary,
-    position: 'relative', // Needed for absolute positioning of status
+    position: 'relative',
   },
-  
   statusContainer: {
     position: 'absolute',
     top: 12,
@@ -324,7 +340,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  
   statusText: {
     color: 'white',
     fontSize: 10,
@@ -380,15 +395,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexWrap: 'wrap',
   },
-  passengerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  passengerText: {
-    fontSize: 14,
-    color: '#666',
-    marginLeft: 4,
-  },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
@@ -422,4 +428,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DashboardScreen
+export default DashboardScreen;

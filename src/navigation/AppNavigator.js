@@ -9,6 +9,7 @@ import { Icon } from 'react-native-paper';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import OTPVerificationScreen from '../screens/OTPVerificationScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import TripsScreen from '../screens/TripsScreen';
 import RatingScreen from '../screens/RatingScreen';
@@ -94,6 +95,10 @@ const AppNavigator = () => {
             <Stack.Screen 
               name="ForgotPassword" 
               component={ForgotPasswordScreen} 
+            />
+            <Stack.Screen 
+              name="OTPVerification" 
+              component={OTPVerificationScreen} 
             />
           </>
         ) : (

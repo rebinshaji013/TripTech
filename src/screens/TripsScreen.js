@@ -13,6 +13,12 @@ import { Icon } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 import { setTrips, setCurrentTrip, setLoading, setError } from '../store/tripSlice';
 import { fetchTripDetails } from '../store/tripActions';
+import CommonHeader from '../components/CommonHeader';
+
+import Fonts from '../utilities/fonts';
+import useColors from '../hooks/useColors';
+
+const Colors = useColors();
 
 const TripsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -29,7 +35,7 @@ const TripsScreen = ({ navigation }) => {
         date: '09-AUG-2025',
         pickupAddress: '123 Main St. Oak Ave, Anytown',
         passengerName: 'Ethan Miller',
-        status: 'upcoming',
+        status: 'cancelled',
       },
       {
         id: '002',
@@ -37,7 +43,7 @@ const TripsScreen = ({ navigation }) => {
         date: '09-AUG-2025',
         pickupAddress: '789 Pine Ln. Oak Ave, Anytown',
         passengerName: 'Sarah Johnson',
-        status: 'upcoming',
+        status: 'cancelled',
       },
       {
         id: '003',
@@ -53,7 +59,7 @@ const TripsScreen = ({ navigation }) => {
         date: '09-AUG-2025',
         pickupAddress: '321 Maple St. Pine Ave, Anytown',
         passengerName: 'Emily Davis',
-        status: 'upcoming',
+        status: 'cancelled',
       },
     ];
     
@@ -69,6 +75,8 @@ const TripsScreen = ({ navigation }) => {
     setSearchTerm(text);
     // Implement search functionality if needed
   };
+
+  const handleNotificationPress = () => {};
 
   const filteredTrips = trips.filter(trip => {
     // Filter by status
@@ -90,34 +98,46 @@ const TripsScreen = ({ navigation }) => {
 
   const renderTripItem = ({ item }) => (
     <TouchableOpacity 
-      style={styles.tripItem}
+      style={[styles.tripCard, { backgroundColor: Colors.white }]}
       onPress={() => handleTripPress(item)}
     >
-      <View style={styles.tripContent}>
-        <View style={styles.tripHeader}>
-          <Text style={styles.tripId}>TRIP #{item.id}</Text>
-        </View>
-        
-        <View style={styles.tripDetails}>
-          <View style={styles.timeDateRow}>
-            <Icon source="clock-outline" size={16} color="#666" />
-            <Text style={styles.timeText}>{item.time}</Text>
-            
-            <Icon source="calendar" size={16} color="#666" style={styles.dateIcon} />
-            <Text style={styles.dateText}>{item.date}</Text>
-          </View>
-          
-          <View style={styles.pickupRow}>
-            <Icon source="map-marker" size={16} color="#666" />
-            <Text style={styles.pickupText}>Pickup : {item.pickupAddress}</Text>
-          </View>
-        </View>
+      {/* Status Container - Top Right Corner */}
+      <View style={[
+        styles.statusContainer,
+        { 
+          backgroundColor: item.status === 'completed' ? Colors.success : 
+                          item.status === 'cancelled' ? Colors.error :
+                          item.status === 'upcoming' ? Colors.warning :
+                          Colors.primaryLight 
+        }
+      ]}>
+        <Text style={styles.statusText}>
+          {item.status === 'completed' ? 'Completed' :
+           item.status === 'cancelled' ? 'Cancelled' :
+           item.status === 'upcoming' ? 'On Trip' : 'Upcoming'}
+        </Text>
+      </View>
+
+      <View style={styles.tripHeader}>
+        <Text style={[styles.tripId, { color: Colors.primary }]}>TRIP #{item.id}</Text>
       </View>
       
-      <View style={[
-        styles.statusIndicator,
-        { backgroundColor: item.status === 'upcoming' ? '#FFA500' : '#4CAF50' }
-      ]} />
+      <View style={styles.tripDetails}>
+        <View style={styles.timeDateRow}>
+          <Icon source="clock-outline" size={13} color={Colors.primaryLight} />
+          <Text style={[styles.timeText, { color: Colors.gray600 }]}>{item.time}</Text>
+        </View>
+        
+        <View style={styles.timeDateRow}>
+          <Icon source="calendar" size={13} color={Colors.primaryLight} style={styles.dateIcon} />
+          <Text style={[styles.dateText, { color: Colors.gray600 }]}>{item.date}</Text>
+        </View>
+        
+        <View style={styles.pickupRow}>
+          <Icon source="map-marker" size={13} color={Colors.primaryLight} />
+          <Text style={[styles.pickupText, { color: Colors.gray600 }]}>Pickup: {item.pickupAddress}</Text>
+        </View>
+      </View>
     </TouchableOpacity>
   );
 
@@ -132,6 +152,7 @@ const TripsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <CommonHeader onNotificationPress={handleNotificationPress} />
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Icon source="magnify" size={20} color="#666" />
@@ -149,27 +170,51 @@ const TripsScreen = ({ navigation }) => {
         ) : null}
       </View>
 
-      {/* Filter Tabs */}
-      <View style={styles.filterContainer}>
+      {/* Filter Buttons */}
+      <View style={styles.filterButtonsContainer}>
         <TouchableOpacity 
-          style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]}
+          style={[
+            styles.filterButton, 
+            filter === 'all' && styles.filterButtonActive
+          ]}
           onPress={() => setFilter('all')}
         >
-          <Text style={[styles.filterText, filter === 'all' && styles.filterTextActive]}>All</Text>
+          <Text style={[
+            styles.filterButtonText, 
+            filter === 'all' && styles.filterButtonTextActive
+          ]}>
+            All
+          </Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
-          style={[styles.filterButton, filter === 'upcoming' && styles.filterButtonActive]}
+          style={[
+            styles.filterButton, 
+            filter === 'upcoming' && styles.filterButtonActive
+          ]}
           onPress={() => setFilter('upcoming')}
         >
-          <Text style={[styles.filterText, filter === 'upcoming' && styles.filterTextActive]}>Upcoming</Text>
+          <Text style={[
+            styles.filterButtonText, 
+            filter === 'upcoming' && styles.filterButtonTextActive
+          ]}>
+            Upcoming
+          </Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
-          style={[styles.filterButton, filter === 'completed' && styles.filterButtonActive]}
+          style={[
+            styles.filterButton, 
+            filter === 'completed' && styles.filterButtonActive
+          ]}
           onPress={() => setFilter('completed')}
         >
-          <Text style={[styles.filterText, filter === 'completed' && styles.filterTextActive]}>Completed</Text>
+          <Text style={[
+            styles.filterButtonText, 
+            filter === 'completed' && styles.filterButtonTextActive
+          ]}>
+            Completed
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -234,97 +279,113 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  filterContainer: {
+  filterButtonsContainer: {
     flexDirection: 'row',
     marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    justifyContent: 'space-between',
+    gap: 8,
   },
   filterButton: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 10,
     alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
+    borderRadius: 8,
+    backgroundColor: '#f5f5f5',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   filterButtonActive: {
-    borderBottomColor: '#007AFF',
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
   },
-  filterText: {
+  filterButtonText: {
     fontSize: 14,
     color: '#666',
     fontWeight: '500',
   },
-  filterTextActive: {
-    color: '#007AFF',
+  filterButtonTextActive: {
+    color: '#fff',
     fontWeight: 'bold',
   },
   listHeader: {
     marginBottom: 16,
   },
   listHeaderText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 16,
+    fontFamily: Fonts.urbanist.extraBold,
+    fontWeight: '800',
+    color: Colors.primary,
   },
   listContent: {
     paddingBottom: 20,
   },
-  tripItem: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-    flexDirection: 'row',
-    overflow: 'hidden',
-  },
-  tripContent: {
-    flex: 1,
+  tripCard: {
+    borderRadius: 12,
     padding: 16,
+    marginBottom: 12,
+    marginHorizontal: 2,
+    elevation: 3,
+    position: 'relative',
   },
-  statusIndicator: {
-    width: 6,
-    backgroundColor: '#007AFF',
+  statusContainer: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    minWidth: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statusText: {
+    color: Colors.white,
+    fontSize: 10,
+    fontFamily: Fonts.urbanist.bold,
+    textTransform: 'uppercase',
   },
   tripHeader: {
     marginBottom: 12,
   },
   tripId: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 12,
+    fontFamily: Fonts.urbanist.extraBold,
+    fontWeight: '800',
+    color: Colors.primary,
   },
   tripDetails: {
     marginLeft: 4,
+    flexDirection: 'column',
   },
   timeDateRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
-    gap: 4,
+    marginTop: 5,
   },
   timeText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 11,
+    fontFamily: Fonts.urbanist.semiBold,
+    marginLeft: 4,
     marginRight: 16,
   },
   dateText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 11,
+    fontFamily: Fonts.urbanist.semiBold,
+    marginLeft: 4,
   },
   pickupRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    marginBottom: 8,
+    marginTop: 5,
   },
   pickupText: {
     fontSize: 14,
-    color: '#666',
+    fontFamily: Fonts.urbanist.semiBold,
+    marginLeft: 4,
     flex: 1,
+    flexWrap: 'wrap',
   },
   loadingText: {
     marginTop: 10,
@@ -336,6 +397,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 40,
     gap: 10,
+    flex: 1,
   },
   emptyText: {
     fontSize: 16,

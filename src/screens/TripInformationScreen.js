@@ -1,9 +1,13 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Checkbox, Icon } from 'react-native-paper'; // ✅ use Paper components
+import { IconButton } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 import { setTripDetails, updateMilestoneStatus, confirmTrip } from '../store/tripSlice';
 import { fetchTripDetails } from '../store/tripActions';
+import Fonts from '../utilities/fonts';
+import useColors from '../hooks/useColors';
+
+const Colors = useColors();
 
 const TripInformationScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
@@ -12,23 +16,13 @@ const TripInformationScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (tripId) {
-      // Fetch trip details if we have a trip ID
       dispatch(fetchTripDetails(tripId));
     } else if (route.params?.trip) {
-      // Set trip details directly if passed through params
       dispatch(setTripDetails(route.params.trip));
     } else {
-      // If no trip data, navigate back
       navigation.goBack();
     }
   }, [tripId, navigation, dispatch, route.params]);
-
-  const handleCheckboxToggle = (milestoneId, currentlyChecked) => {
-    dispatch(updateMilestoneStatus({
-      milestoneId,
-      checked: !currentlyChecked
-    }));
-  };
 
   const handleConfirm = () => {
     dispatch(confirmTrip());
@@ -36,13 +30,13 @@ const TripInformationScreen = ({ navigation, route }) => {
   };
 
   const handleAddRequest = () => {
-    navigation.navigate('AddRequest', { tripId: currentTrip?.id });
+    //navigation.navigate('AddRequest', { tripId: currentTrip?.id });
   };
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color="#007AFF" />
+      <View style={[styles.centered]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
         <Text style={styles.loadingText}>Loading trip details...</Text>
       </View>
     );
@@ -50,14 +44,10 @@ const TripInformationScreen = ({ navigation, route }) => {
 
   if (error) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Icon source="alert-circle" size={48} color="#FF3B30" /> 
+      <View style={styles.centered}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity 
-          style={styles.retryButton}
-          onPress={() => tripId && dispatch(fetchTripDetails(tripId))}
-        >
-          <Text style={styles.retryButtonText}>Retry</Text>
+        <TouchableOpacity style={[styles.button, { backgroundColor: Colors.primary }]} onPress={() => tripId && dispatch(fetchTripDetails(tripId))}>
+          <Text style={styles.buttonText}>Retry</Text>
         </TouchableOpacity>
       </View>
     );
@@ -65,173 +55,126 @@ const TripInformationScreen = ({ navigation, route }) => {
 
   if (!currentTrip) {
     return (
-      <View style={[styles.container, styles.center]}>
+      <View style={styles.centered}>
         <Text>No trip data available</Text>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backButtonText}>Go Back</Text>
+        <TouchableOpacity style={[styles.button, { backgroundColor: Colors.gray200 }]} onPress={() => navigation.goBack()}>
+          <Text style={[styles.buttonText, { color: Colors.black }]}>Go Back</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
+  const milestones = currentTrip.milestones || [
+    { id: '1', address: '123 Main St, Oak Ave, Anytown', time: '10:00 AM', date: '09-AUG-2025', region: 'Milestone 1' },
+    { id: '2', address: '123 Main St, Oak Ave, Anytown', time: '04:30 PM', date: '09-AUG-2025', region: 'Milestone 2' },
+    { id: '3', address: '123 Main St, Oak Ave, Anytown', time: '08:30 PM', date: '09-AUG-2025', region: 'Milestone 3' },
+    { id: '4', address: '123 Main St, Oak Ave, Anytown', time: '03:30 AM', date: '10-AUG-2025', region: 'Milestone 4' },
+  ];
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.header}>Trip Details</Text>
-        
-        <Text style={styles.sectionHeader}>TRIP INFORMATION</Text>
-        <View style={styles.timeContainer}>
-          <View style={styles.checkboxRow}>
-            <Checkbox
-              status={'unchecked'}
-              onPress={() => {}}
-              color="#007AFF"
-            />
-            <Text style={styles.timeText}>{currentTrip.time || '09:00 AM'}</Text>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+
+      {/* Header */}
+      <View style={styles.header}>
+        <IconButton icon="arrow-left" size={24} onPress={() => navigation.goBack()} />
+        <Text style={styles.headerTitle}>Trip Details</Text>
+        <IconButton icon="bell-outline" size={24} />
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+
+        {/* Trip Info */}
+        <View style={styles.card}>
+          <View style={styles.rowBetween}>
+            <Text style={styles.sectionTitle}>TRIP INFORMATION</Text>
+            <Text style={styles.tripBadge}>TRIP #{currentTrip.id || '001'}</Text>
           </View>
-          
-          <View style={styles.checkboxRow}>
-            <Checkbox
-              status={'checked'}
-              onPress={() => {}}
-              color="#007AFF"
-            />
-            <Text style={styles.timeText}>{currentTrip.date || '09-AUG-2025'}</Text>
+          <View style={[styles.row]}>
+            <IconButton icon="clock-outline" size={13} iconColor={Colors.primaryLight} />
+            <Text style={{color: '#A0A0A0', fontFamily: Fonts.urbanist.extraBold, fontSize: 11, fontWeight: '600'}}>{currentTrip.time || '09:00 AM'}</Text>
+          </View>
+          <View style={styles.row}>
+            <IconButton icon="calendar" size={13} iconColor={Colors.primaryLight} />
+            <Text style={{color: '#A0A0A0', fontFamily: Fonts.urbanist.extraBold, fontSize: 11, fontWeight: '600'}}>{currentTrip.date || '09-AUG-2025'}</Text>
+          </View>
+          <Text style={styles.pickupText}>Pickup: {currentTrip.pickupAddress}</Text>
+        </View>
+
+        {/* Map Placeholder */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Pickup Location</Text>
+          <View style={styles.mapPlaceholder}>
+            <Text style={{ color: Colors.gray600 }}>Map View Placeholder</Text>
+          </View>
+          <Text style={styles.address}>{currentTrip.pickupAddress}</Text>
+        </View>
+
+        {/* Passenger */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>PASSENGER DETAILS</Text>
+          <Text style={styles.passengerName}>{currentTrip.passengerName || 'Ethan Miller'}</Text>
+          <View style={styles.rowBetween}>
+            <Text style={{fontSize : 13, color: '#878787', fontFamily: Fonts.urbanist.regular, fontWeight: '400'}}>{currentTrip.passengerPhone || '+1 (555) 987-6543'}</Text>
+            <View style={styles.iconrow}>
+              <IconButton icon="phone" size={17} iconColor={Colors.primaryLight} />
+              <IconButton icon="message-text" size={17} iconColor={Colors.primaryLight}/>
+            </View>
           </View>
         </View>
 
-        <View style={styles.divider} />
-        
-        <Text style={styles.subHeader}>Pickup: {currentTrip.pickupAddress}</Text>
-        
-        <View style={styles.divider} />
-        
-        <Text style={styles.sectionHeader}>Pickup Location</Text>
-        <Text style={styles.address}>{currentTrip.pickupAddress}</Text>
-        
-        <View style={styles.divider} />
-        
-        <Text style={styles.sectionHeader}>PASSENGER DETAILS</Text>
-        <View style={styles.passengerInfo}>
-          <Text style={styles.passengerName}>{currentTrip.passengerName}</Text>
-          <View style={styles.phoneRow}>
-            <Icon source="phone" size={16} color="#555" /> 
-            <Text style={styles.phoneNumber}>{currentTrip.phoneNumber}</Text>
-          </View>
+        {/* Trip Locations */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>TRIP LOCATIONS</Text>
+          {milestones.map(ms => (
+            <View key={ms.id} style={styles.milestone}>
+              <View style={styles.row}>
+                <IconButton icon="navigation" size={15} iconColor={Colors.primaryLight} />
+                <View>
+                  <Text>{ms.address}</Text>
+                  <Text>{ms.time} | {ms.date} | {ms.region}</Text>
+                </View>
+              </View>
+            </View>
+          ))}
         </View>
-        
-        <View style={styles.divider} />
-        
-        <Text style={styles.sectionHeader}>TRIP LOCATIONS</Text>
-        
-        {currentTrip.milestones && currentTrip.milestones.map((milestone) => (
-          <MilestoneItem
-            key={milestone.id}
-            milestone={milestone}
-            onToggle={handleCheckboxToggle}
-          />
-        ))}
-        
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-            style={[styles.button, styles.addRequestButton]}
-            onPress={handleAddRequest}
-          >
-            <Text style={styles.addRequestButtonText}>Add Request</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.button, styles.confirmButton]}
-            onPress={handleConfirm}
-          >
-            <Text style={styles.buttonText}>Confirm</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </ScrollView>
-  );
-};
 
-const MilestoneItem = ({ milestone, onToggle }) => {
-  return (
-    <View style={styles.milestone}>
-      <View style={styles.milestoneHeader}>
-        <Checkbox
-          status={milestone.checked ? 'checked' : 'unchecked'}
-          onPress={() => onToggle(milestone.id, milestone.checked)}
-          color="#007AFF"
-        />
-        <Text style={styles.milestoneAddress}>{milestone.address}</Text>
+      </ScrollView>
+
+      {/* Bottom Buttons */}
+      <View style={styles.footer}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: Colors.gray100 }]} onPress={handleAddRequest}>
+          <Text style={[styles.buttonText, { color: Colors.primary }]}>Add Request</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, { backgroundColor: Colors.primary }]} onPress={handleConfirm}>
+          <Text style={styles.buttonText}>Confirm</Text>
+        </TouchableOpacity>
       </View>
-      
-      <View style={styles.milestoneDetails}>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Time:</Text>
-          <Text style={styles.detailValue}>{milestone.time}</Text>
-        </View>
-        
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Date:</Text>
-          <Text style={styles.detailValue}>{milestone.date}</Text>
-        </View>
-        
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Region:</Text>
-          <Text style={styles.detailValue}>{milestone.region}</Text>
-        </View>
-      </View>
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  center: { justifyContent: 'center', alignItems: 'center' },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 0,
-    padding: 20,
-    margin: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333' },
-  sectionHeader: { fontSize: 18, fontWeight: 'bold', marginBottom: 12, color: '#333', textTransform: 'uppercase' },
-  timeContainer: { marginBottom: 8 },
-  checkboxRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  timeText: { marginLeft: 8, fontSize: 16, color: '#555' },
-  divider: { height: 1, backgroundColor: '#e0e0e0', marginVertical: 16 },
-  subHeader: { fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 8 },
-  address: { fontSize: 16, color: '#555', marginBottom: 8 },
-  passengerInfo: { marginBottom: 8 },
-  passengerName: { fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 4 },
-  phoneRow: { flexDirection: 'row', alignItems: 'center' },
-  phoneNumber: { fontSize: 16, color: '#555', marginLeft: 4 },
-  milestone: { borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 8, padding: 12, marginBottom: 12 },
-  milestoneHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  milestoneAddress: { marginLeft: 8, fontSize: 16, color: '#555', flex: 1, fontWeight: 'bold' },
-  milestoneDetails: { marginLeft: 40 },
-  detailRow: { flexDirection: 'row', marginBottom: 6 },
-  detailLabel: { fontSize: 14, color: '#666', width: 60, fontWeight: '600' },
-  detailValue: { fontSize: 14, color: '#555', flex: 1 },
-  buttonContainer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 24 },
-  button: { flex: 1, paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginHorizontal: 8 },
-  addRequestButton: { backgroundColor: '#f0f0f0', borderWidth: 1, borderColor: '#ddd' },
-  confirmButton: { backgroundColor: '#007AFF' },
-  buttonText: { fontSize: 16, fontWeight: '600', color: '#fff' },
-  addRequestButtonText: { fontSize: 16, fontWeight: '600', color: '#333' },
-  loadingText: { marginTop: 10, fontSize: 16, color: '#666' },
-  errorText: { marginTop: 10, fontSize: 16, color: '#FF3B30', textAlign: 'center', marginHorizontal: 20 },
-  retryButton: { marginTop: 20, backgroundColor: '#007AFF', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
-  retryButtonText: { color: 'white', fontWeight: 'bold' },
-  backButton: { marginTop: 20, backgroundColor: '#f0f0f0', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
-  backButtonText: { color: '#333', fontWeight: 'bold' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 8 },
+  headerTitle: { fontSize: 20, fontFamily: Fonts.urbanist.bold , color: '#3B63AA', fontWeight: '700'},
+  card: { backgroundColor: '#fff', margin: 12, padding: 16, borderRadius: 5, elevation: 2, borderColor: '#E5E7EB', borderWidth: 1 },
+  row: { flexDirection: 'row', alignItems: 'center', },
+  iconrow: { flexDirection: 'row', alignItems: 'flex-start', },
+  rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  sectionTitle: { fontSize: 12, fontFamily: Fonts.urbanist.extraBold, marginBottom: 8, color: Colors.primary, fontWeight: '800' },
+  tripBadge: { backgroundColor: '#eee', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, 
+       fontSize: 12, fontFamily: Fonts.urbanist.extraBold, color: Colors.primary, fontWeight: '800' },
+  pickupText: { marginTop: 8, fontFamily: Fonts.urbanist.regular, fontSize: 14, fontWeight: '400', color: '#A0A0A0' },
+  mapPlaceholder: { backgroundColor: '#f5f5f5', borderRadius: 10, height: 120, justifyContent: 'center', alignItems: 'center', marginVertical: 8 },
+  address: { fontSize: 14, marginTop: 6, fontFamily: Fonts.urbanist.regular, fontWeight: '400', color: '#A0A0A0' },
+  passengerName: { fontSize: 16, fontFamily: Fonts.urbanist.medium, marginBottom: 4, fontWeight: '500', color: '#3B63AA' },
+  milestone: { marginVertical: 6 },
+  footer: { flexDirection: 'row', justifyContent: 'space-between', padding: 12 },
+  button: { flex: 1, marginHorizontal: 4, paddingVertical: 14, borderRadius: 8, alignItems: 'center' },
+  buttonText: { fontFamily: Fonts.urbanist.bold, color: '#fff' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingText: { marginTop: 10 },
+  errorText: { marginBottom: 12, color: 'red' },
 });
 
 export default TripInformationScreen;
