@@ -5,9 +5,9 @@ import {
   StyleSheet,
   Animated,
   StatusBar,
-  SafeAreaView,
   TouchableOpacity,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context"; // ✅ fixed import
 import { Icon } from "react-native-paper";
 import Colors from "../utilities/colors";
 import Fonts from "../utilities/fonts";
@@ -17,7 +17,6 @@ const WelcomeScreen = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Initial animation when component mounts
     Animated.parallel([
       Animated.timing(slideAnim, {
         toValue: 1,
@@ -28,12 +27,11 @@ const WelcomeScreen = ({ navigation }) => {
         toValue: 1,
         duration: 1200,
         useNativeDriver: true,
-      })
+      }),
     ]).start();
   }, []);
 
   const handleGetStarted = () => {
-    // Animate out before navigating
     Animated.parallel([
       Animated.timing(slideAnim, {
         toValue: 2,
@@ -44,16 +42,15 @@ const WelcomeScreen = ({ navigation }) => {
         toValue: 0,
         duration: 600,
         useNativeDriver: true,
-      })
+      }),
     ]).start(() => {
       navigation.navigate("Login");
     });
   };
 
-  // Animation interpolations
   const translateX = slideAnim.interpolate({
     inputRange: [0, 1, 2],
-    outputRange: [300, 0, -300], // Start from right, center, then slide left
+    outputRange: [300, 0, -300],
   });
 
   const opacity = fadeAnim.interpolate({
@@ -68,24 +65,23 @@ const WelcomeScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: Colors.primary }]}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <StatusBar
+        barStyle="light-content"
+        translucent={true}
+        backgroundColor="transparent"
+      />
 
       {/* Animated Logo & App Name */}
       <Animated.View
         style={[
           styles.centered,
-          { 
+          {
             transform: [{ translateX }],
-            opacity 
+            opacity,
           },
         ]}
       >
-        <Icon 
-          source="car" 
-          size={64} 
-          color={Colors.white} 
-          style={styles.logoIcon}
-        />
+        <Icon source="car" size={64} color={Colors.white} style={styles.logoIcon} />
         <Text style={[styles.logoText, { color: Colors.white }]}>
           TripTech
         </Text>
@@ -98,23 +94,23 @@ const WelcomeScreen = ({ navigation }) => {
       <Animated.View
         style={[
           styles.buttonContainer,
-          { 
+          {
             opacity,
-            transform: [{ scale: buttonScale }] 
-          }
+            transform: [{ scale: buttonScale }],
+          },
         ]}
       >
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.getStartedButton, { backgroundColor: Colors.white }]}
           onPress={handleGetStarted}
         >
           <Text style={[styles.buttonText, { color: Colors.primary }]}>
             Get Started
           </Text>
-          <Icon 
-            source="arrow-right" 
-            size={20} 
-            color={Colors.primary} 
+          <Icon
+            source="arrow-right"
+            size={20}
+            color={Colors.primary}
             style={styles.arrowIcon}
           />
         </TouchableOpacity>

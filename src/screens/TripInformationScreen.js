@@ -128,7 +128,7 @@ const TripInformationScreen = ({ navigation, route }) => {
           {milestones.map(ms => (
             <View key={ms.id} style={styles.milestone}>
               <View style={styles.row}>
-                <IconButton icon="navigation" size={15} iconColor={Colors.primaryLight} />
+                <IconButton icon="navigation-variant" size={15} iconColor={Colors.primaryLight} />
                 <View>
                   <Text>{ms.address}</Text>
                   <Text>{ms.time} | {ms.date} | {ms.region}</Text>
