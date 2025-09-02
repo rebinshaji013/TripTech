@@ -17,6 +17,20 @@ class MainActivity : ReactActivity() {
    * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]
    * which allows you to enable New Architecture with a single boolean flags [fabricEnabled]
    */
+
+  override fun onPause() {
+      super.onPause()
+      try {
+          val mapViewId = resources.getIdentifier("map", "id", packageName)
+          if (mapViewId != 0) {
+              val mapView = findViewById<com.google.android.gms.maps.MapView?>(mapViewId)
+              mapView?.onPause()
+          }
+      } catch (e: Exception) {
+          // ignore crash
+      }
+  }
+
   override fun createReactActivityDelegate(): ReactActivityDelegate =
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 }
