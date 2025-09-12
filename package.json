@@ -1,7 +1,7 @@
 {
   "name": "@coreui/coreui-free-react-admin-template",
   "version": "5.5.0",
-  "description": "CoreUI Free React Admin Template",
+  "description": "Triptech Admin Panel",
   "homepage": ".",
   "bugs": {
     "url": "https://github.com/coreui/coreui-free-react-admin-template/issues"
@@ -35,6 +35,7 @@
     "react-dom": "^19.1.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.7.1",
+    "recharts": "^3.2.0",
     "redux": "5.0.1",
     "simplebar-react": "^3.3.2"
   },
