@@ -15,17 +15,17 @@ import {
 import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash, cilMagnifyingGlass } from "@coreui/icons";
 
-export default function Operations() {
+export default function TOOperations() {
   const navigate = useNavigate();
   const [operationData, setOperationData] = useState([]);
 
   useEffect(() => {
-    const storedUsers = JSON.parse(localStorage.getItem("operations") || "[]");
+    const storedUsers = JSON.parse(localStorage.getItem("owneroperations") || "[]");
     setOperationData(storedUsers);
   }, []);
 
   const handleAddUser = () => {
-    navigate("/adduser"); // navigate to user details screen
+    navigate("/owner/adduser"); // navigate to user details screen
   };
 
   const handleDeleteUser = (index) => {
@@ -36,14 +36,14 @@ export default function Operations() {
 
     const updatedUsers = operationData.filter((_, i) => i !== index);
     setOperationData(updatedUsers);
-    localStorage.setItem("operations", JSON.stringify(updatedUsers));
+    localStorage.setItem("owneroperations", JSON.stringify(updatedUsers));
   };
 
   return (
     <div className="p-4">
       <CCard className="shadow-sm border-0">
         <CCardHeader className="d-flex justify-content-between align-items-center">
-          <h5 className="mb-0 fw-bold">Operational User Listing</h5>
+          <h5 className="mb-0 fw-bold">User Listing</h5>
           <CButton color="primary" onClick={handleAddUser}>
             Add User
           </CButton>
@@ -52,9 +52,8 @@ export default function Operations() {
           <CTable striped bordered hover responsive>
             <CTableHead color="light">
               <CTableRow>
-                <CTableHeaderCell>User Type</CTableHeaderCell>
-                <CTableHeaderCell>Operation User Name</CTableHeaderCell>
-                <CTableHeaderCell>Operation User Location</CTableHeaderCell>
+                <CTableHeaderCell>User Name</CTableHeaderCell>
+                <CTableHeaderCell>User Email ID</CTableHeaderCell>
                 <CTableHeaderCell>Status</CTableHeaderCell>
                 <CTableHeaderCell>Action</CTableHeaderCell>
               </CTableRow>
@@ -69,9 +68,8 @@ export default function Operations() {
               ) : (
                 operationData.map((operation, idx) => (
                   <CTableRow key={idx}>
-                    <CTableDataCell>{operation.type}</CTableDataCell>
                     <CTableDataCell>{operation.name}</CTableDataCell>
-                    <CTableDataCell>{operation.location}</CTableDataCell>
+                    <CTableDataCell>{operation.email}</CTableDataCell>
                     <CTableDataCell>{operation.status}</CTableDataCell>
                     <CTableDataCell>
                       <CButton

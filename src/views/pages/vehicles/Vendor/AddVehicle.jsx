@@ -13,15 +13,13 @@ import {
   CFormInput,
   CFormSelect,
   CTable,
-  CTableHead,
   CTableRow,
-  CTableHeaderCell,
   CTableBody,
   CTableDataCell,
   CBadge,
 } from "@coreui/react";
 
-export default function VehicleDetails() {
+export default function VendorVehicleDetails() {
   const navigate = useNavigate();
 
   const [vehicle, setVehicle] = useState({
@@ -75,7 +73,7 @@ export default function VehicleDetails() {
     localStorage.setItem("drivers", JSON.stringify([...existingDrivers, driver]));
     localStorage.setItem("documents", JSON.stringify([...existingDocs, ...documents]));
 
-    navigate("/vehicles");
+    navigate("/vendor/vehicles");
   };
 
   return (
@@ -108,10 +106,6 @@ export default function VehicleDetails() {
                   <CTableRow>
                     <CTableDataCell>Year</CTableDataCell>
                     <CTableDataCell>{vehicle.year || "-"}</CTableDataCell>
-                  </CTableRow>
-                  <CTableRow>
-                    <CTableDataCell>Capacity</CTableDataCell>
-                    <CTableDataCell>{vehicle.capacity || "-"}</CTableDataCell>
                   </CTableRow>
                   <CTableRow>
                     <CTableDataCell>Status</CTableDataCell>
@@ -187,72 +181,103 @@ export default function VehicleDetails() {
         </CCardBody>
       </CCard>
 
-      {/* Vehicle Modal */}
-      <CModal visible={showVehicleModal} onClose={() => setShowVehicleModal(false)}>
-        <CModalHeader>Update Vehicle</CModalHeader>
-        <CModalBody>
-          <CForm>
-            <CFormSelect
-              label="TC Type"
-              name="vehicleType"
-              value={vehicle.vehicleType}
-              onChange={handleVehicleChange}
-            >
-              <option value="">Select Type</option>
-              <option value="Manager">Manager</option>
-              <option value="Owner">Owner</option>
-              <option value="Other">Other</option>
-            </CFormSelect>
-            <CFormInput
-              label="Owner Name"
-              name="owner"
-              value={vehicle.owner}
-              onChange={handleVehicleChange}
-              className="mt-2"
-            />
-            <CFormInput
-              label="Vehicle Make"
-              name="make"
-              value={vehicle.make}
-              onChange={handleVehicleChange}
-              className="mt-2"
-            />
-            <CFormInput
-              label="Year"
-              name="year"
-              value={vehicle.year}
-              onChange={handleVehicleChange}
-              className="mt-2"
-            />
-            <CFormInput
-              label="Capacity"
-              name="capacity"
-              value={vehicle.capacity}
-              onChange={handleVehicleChange}
-              className="mt-2"
-            />
-            <CFormSelect
-              label="Status"
-              name="status"
-              value={vehicle.status}
-              onChange={handleVehicleChange}
-              className="mt-2"
-            >
-              <option value="">Select Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </CFormSelect>
-          </CForm>
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setShowVehicleModal(false)}>
-            Cancel
-          </CButton>
-          <CButton color="primary" onClick={() => setShowVehicleModal(false)}>
-            Save
-          </CButton>
-        </CModalFooter>
-      </CModal>
+     {/* Vehicle Modal */}
+<CModal visible={showVehicleModal} onClose={() => setShowVehicleModal(false)}>
+  <CModalHeader>Update Vehicle</CModalHeader>
+  <CModalBody>
+    <CForm>
+      {/* Vehicle Class */}
+      <CFormSelect
+        label="Vehicle Class"
+        name="vehicleClass"
+        value={vehicle.vehicleClass || ""}
+        onChange={(e) => {
+          const updated = {
+            ...vehicle,
+            vehicleClass: e.target.value,
+            vehicleType: `${e.target.value} ${vehicle.vehicleSeating || ""}`.trim(),
+          }
+          setVehicle(updated)
+        }}
+      >
+        <option value="">Select Class</option>
+        <option value="Normal">Normal</option>
+        <option value="Luxury">Luxury</option>
+      </CFormSelect>
+
+      {/* Vehicle Seating */}
+      <CFormSelect
+        label="Vehicle Seating"
+        name="vehicleSeating"
+        value={vehicle.vehicleSeating || ""}
+        className="mt-2"
+        onChange={(e) => {
+          const updated = {
+            ...vehicle,
+            vehicleSeating: e.target.value,
+            vehicleType: `${vehicle.vehicleClass || ""} ${e.target.value}`.trim(),
+          }
+          setVehicle(updated)
+        }}
+      >
+        <option value="">Select Seating</option>
+        <option value="3 seater">3 Seater</option>
+        <option value="4 seater">4 Seater</option>
+        <option value="5 seater">5 Seater</option>
+        <option value="6 seater">6 Seater</option>
+        <option value="7 seater">7 Seater</option>
+      </CFormSelect>
+
+      {/* Owner Name */}
+      <CFormInput
+        label="Owner Name"
+        name="owner"
+        value={vehicle.owner}
+        onChange={handleVehicleChange}
+        className="mt-2"
+      />
+
+      {/* Vehicle Make */}
+      <CFormInput
+        label="Vehicle Make"
+        name="make"
+        value={vehicle.make}
+        onChange={handleVehicleChange}
+        className="mt-2"
+      />
+
+      {/* Year */}
+      <CFormInput
+        label="Year"
+        name="year"
+        value={vehicle.year}
+        onChange={handleVehicleChange}
+        className="mt-2"
+      />
+
+      {/* Status */}
+      <CFormSelect
+        label="Status"
+        name="status"
+        value={vehicle.status}
+        onChange={handleVehicleChange}
+        className="mt-2"
+      >
+        <option value="">Select Status</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </CFormSelect>
+    </CForm>
+  </CModalBody>
+  <CModalFooter>
+    <CButton color="secondary" onClick={() => setShowVehicleModal(false)}>
+      Cancel
+    </CButton>
+    <CButton color="primary" onClick={() => setShowVehicleModal(false)}>
+      Save
+    </CButton>
+  </CModalFooter>
+</CModal>
 
       {/* Driver Modal */}
       <CModal visible={showDriverModal} onClose={() => setShowDriverModal(false)}>
@@ -278,7 +303,7 @@ export default function VehicleDetails() {
           <CButton color="secondary" onClick={() => setShowDriverModal(false)}>
             Cancel
           </CButton>
-          <CButton color="primary" onClick={() => setDriverModal(false)}>
+          <CButton color="primary" onClick={() => setShowDriverModal(false)}>
             Save
           </CButton>
         </CModalFooter>

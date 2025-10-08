@@ -16,8 +16,8 @@ import {
   cilClipboard,
   cilCarAlt,
   cilUser,
-  cilPeople,
-  cilSettings,
+  cilCheckCircle,
+  cilAvTimer,
   cilColumns,
   cilTouchApp,
   cilInput, } from "@coreui/icons";
@@ -67,8 +67,8 @@ const Dashboard = ({ className }) => {
     { title: "Active Vehicles", value: stats.activeVehicles, color: "info", icon: cilCarAlt, path: "/vehicles" },
     { title: "Available Drivers", value: stats.availableDrivers, color: "success", icon: cilUser, path: "/drivers" },
     { title: "Trip Coordinators", value: stats.coordinators, color: "warning", icon: cilColumns, path: "/coordinators" },
-    { title: "Pending Trips", value: stats.pendingTrips, color: "danger", icon: cilSettings, path: "/trips" },
-    { title: "Completed Trips (This Month)", value: stats.completedThisMonth, color: "primary", icon: cilPeople, path: "/trips" },
+    { title: "Pending Trips", value: stats.pendingTrips, color: "danger", icon: cilAvTimer, path: "/trips" },
+    { title: "Completed Trips (This Month)", value: stats.completedThisMonth, color: "primary", icon: cilCheckCircle, path: "/trips" },
     { title: "Operations Team", value: stats.operationsTeam, color: "info", icon: cilTouchApp, path: "/operations" },
     { title: "Total Drivers", value: stats.totalDrivers, color: "success", icon: cilInput, path: "/driverlogin" },
   ];

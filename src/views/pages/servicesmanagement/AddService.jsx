@@ -41,7 +41,7 @@ export default function ServiceDetails() {
     const existing = JSON.parse(localStorage.getItem("services") || "[]");
     existing.push(newService);
     localStorage.setItem("services", JSON.stringify(existing));
-    navigate("/services");
+    navigate("/logistics/services");
   };
 
   return (

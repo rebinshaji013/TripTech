@@ -26,7 +26,7 @@ export default function Services() {
   }, []);
 
   const handleAddService = () => {
-    navigate("/addservice");
+    navigate("/logistics/addservice");
   };
 
   const handleDeleteService = (index) => {

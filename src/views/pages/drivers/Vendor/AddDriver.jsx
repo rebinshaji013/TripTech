@@ -17,7 +17,7 @@ import {
   CBadge,
 } from "@coreui/react";
 
-export default function DriverDetails() {
+export default function VendorDriverDetails() {
   const navigate = useNavigate();
 
   const [basicDetails, setBasicDetails] = useState({
@@ -78,7 +78,7 @@ export default function DriverDetails() {
     localStorage.setItem("drivers", JSON.stringify([...existingDrivers, basicDetails]));
     localStorage.setItem("documents", JSON.stringify([...existingDocs, ...documents]));
     localStorage.setItem("reviews", JSON.stringify(reviews));
-    navigate("/drivers");
+    navigate("/vendor/drivers");
   };
 
   const handleAddReview = () => {

@@ -59,7 +59,7 @@ export default function OwnerDetails() {
     localStorage.setItem("owners", JSON.stringify([...existingOwners, owner]));
     localStorage.setItem("documents", JSON.stringify([...existingDocs, ...documents]));
 
-    navigate("/owners"); // go back to listing page
+    navigate("/logistics/owners"); // go back to listing page
   };
 
   return (

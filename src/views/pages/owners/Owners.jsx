@@ -20,7 +20,7 @@ export default function Owners() {
   const [ownerData, setOwnerData] = useState([])
 
   const handleAddOwner = () => {
-    navigate("/addowner") // navigate to Trip Owner details screen
+    navigate("/logistics/addowner") // navigate to Trip Owner details screen
   }
 
   useEffect(() => {

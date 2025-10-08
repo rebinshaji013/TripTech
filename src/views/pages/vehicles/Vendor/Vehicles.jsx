@@ -16,7 +16,7 @@ import {
 import { cilPencil, cilTrash, cilSearch } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 
-export default function Vehicles() {
+export default function VendorVehicles() {
   const navigate = useNavigate();
   const [vehicleData, setVehicleData] = useState([]);
 
@@ -25,7 +25,7 @@ export default function Vehicles() {
     setVehicleData(saved);
   }, []);
 
-  const handleAddVehicle = () => navigate("/addvehicle");
+  const handleAddVehicle = () => navigate("/vendor/addvehicle");
 
   const handleDelete = (index) => {
     if (!window.confirm("Are you sure you want to delete this vehicle?")) return;
@@ -50,7 +50,6 @@ export default function Vehicles() {
                 <CTableHeaderCell>Type</CTableHeaderCell>
                 <CTableHeaderCell>Owner</CTableHeaderCell>
                 <CTableHeaderCell>Make</CTableHeaderCell>
-                <CTableHeaderCell>Capacity</CTableHeaderCell>
                 <CTableHeaderCell>Status</CTableHeaderCell>
                 <CTableHeaderCell className="text-center">Actions</CTableHeaderCell>
               </CTableRow>
@@ -62,7 +61,6 @@ export default function Vehicles() {
                     <CTableDataCell>{v.vehicleType}</CTableDataCell>
                     <CTableDataCell>{v.owner}</CTableDataCell>
                     <CTableDataCell>{v.make}</CTableDataCell>
-                    <CTableDataCell>{v.capacity}</CTableDataCell>
                     <CTableDataCell>
                       <CBadge color={v.status === "Active" ? "success" : "secondary"}>
                         {v.status}
