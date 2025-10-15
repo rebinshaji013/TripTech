@@ -109,7 +109,7 @@ export default function VTripInvites() {
   return (
     <div className="p-4">
       <CCard className="shadow-sm border-0">
-        <CCardHeader>
+      <CCardHeader className="d-flex justify-content-between align-items-center">
           <h5 className="mb-0 fw-bold">Vendor Invites</h5>
           <CButton color="primary" onClick={handleAddInvite}>
             Add Invite

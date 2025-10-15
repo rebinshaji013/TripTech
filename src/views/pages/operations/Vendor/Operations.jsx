@@ -11,13 +11,33 @@ import {
   CTableHeaderCell,
   CTableBody,
   CTableDataCell,
+  CModal,
+  CBadge,
+  CModalHeader,
+  CModalTitle,
+  CModalBody,
+  CModalFooter,
+  CForm,
+  CFormLabel,
+  CFormInput,
+  CFormSelect,
+  CRow,
+  CCol,
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash, cilMagnifyingGlass } from "@coreui/icons";
 
-export default function VendorOperations() {
+export default function Operations() {
   const navigate = useNavigate();
   const [operationData, setOperationData] = useState([]);
+  const [editModal, setEditModal] = useState(false);
+  const [viewModal, setViewModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    status: ""
+  });
 
   useEffect(() => {
     const storedUsers = JSON.parse(localStorage.getItem("voperations") || "[]");
@@ -25,7 +45,7 @@ export default function VendorOperations() {
   }, []);
 
   const handleAddUser = () => {
-    navigate("/vendor/adduser"); // navigate to user details screen
+    navigate("/vendor/adduser");
   };
 
   const handleDeleteUser = (index) => {
@@ -37,6 +57,35 @@ export default function VendorOperations() {
     const updatedUsers = operationData.filter((_, i) => i !== index);
     setOperationData(updatedUsers);
     localStorage.setItem("voperations", JSON.stringify(updatedUsers));
+  };
+
+  const handleEditClick = (user) => {
+    setSelectedUser(user);
+    setEditForm({
+      name: user.name,
+      email: user.email,
+      status: user.status,
+    });
+    setEditModal(true);
+  };
+
+  const handleViewClick = (user) => {
+    setSelectedUser(user);
+    setViewModal(true);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSaveEdit = () => {
+    const updatedList = operationData.map((user) =>
+      user.id === selectedUser.id ? { ...user, ...editForm } : user
+    );
+    setOperationData(updatedList);
+    localStorage.setItem("voperations", JSON.stringify(updatedList));
+    setEditModal(false);
   };
 
   return (
@@ -53,7 +102,7 @@ export default function VendorOperations() {
             <CTableHead color="light">
               <CTableRow>
                 <CTableHeaderCell>User Name</CTableHeaderCell>
-                <CTableHeaderCell>User Email ID</CTableHeaderCell>
+                <CTableHeaderCell>Email ID</CTableHeaderCell>
                 <CTableHeaderCell>Status</CTableHeaderCell>
                 <CTableHeaderCell>Action</CTableHeaderCell>
               </CTableRow>
@@ -62,7 +111,7 @@ export default function VendorOperations() {
               {operationData.length === 0 ? (
                 <CTableRow>
                   <CTableDataCell colSpan={5} className="text-center text-muted">
-                    No operational users found.
+                    No users found.
                   </CTableDataCell>
                 </CTableRow>
               ) : (
@@ -70,13 +119,20 @@ export default function VendorOperations() {
                   <CTableRow key={idx}>
                     <CTableDataCell>{operation.name}</CTableDataCell>
                     <CTableDataCell>{operation.email}</CTableDataCell>
-                    <CTableDataCell>{operation.status}</CTableDataCell>
+                    <CTableDataCell>
+                      <CBadge
+                        color={operation.status === "Active" ? "success" : "secondary"}
+                      >
+                        {operation.status}
+                      </CBadge>
+                    </CTableDataCell>
                     <CTableDataCell>
                       <CButton
                         color="info"
                         size="sm"
                         variant="ghost"
                         className="me-2"
+                        onClick={() => handleEditClick(operation)}
                       >
                         <CIcon icon={cilPencil} />
                       </CButton>
@@ -85,6 +141,7 @@ export default function VendorOperations() {
                         size="sm"
                         variant="ghost"
                         className="me-2"
+                        onClick={() => handleViewClick(operation)}
                       >
                         <CIcon icon={cilMagnifyingGlass} />
                       </CButton>
@@ -104,6 +161,86 @@ export default function VendorOperations() {
           </CTable>
         </CCardBody>
       </CCard>
+
+      {/* ---------- EDIT MODAL ---------- */}
+      <CModal visible={editModal} onClose={() => setEditModal(false)}>
+        <CModalHeader>
+          <CModalTitle>Edit User</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CForm>
+            <CRow className="mb-3">
+              <CCol md={6}>
+                <CFormLabel>User Name</CFormLabel>
+                <CFormInput
+                  name="name"
+                  value={editForm.name}
+                  onChange={handleEditChange}
+                />
+              </CCol>
+              <CCol md={6}>
+                <CFormLabel>User Email ID</CFormLabel>
+                <CFormInput
+                  name="email"
+                  value={editForm.email}
+                  onChange={handleEditChange}
+                />
+              </CCol>
+            </CRow>
+
+            <CRow className="mb-3">
+              <CCol md={6}>
+                <CFormLabel>Status</CFormLabel>
+                <CFormSelect
+                  name="status"
+                  value={editForm.status}
+                  onChange={handleEditChange}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </CFormSelect>
+              </CCol>
+            </CRow>
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="primary" onClick={handleSaveEdit}>
+            Save Changes
+          </CButton>
+          <CButton color="secondary" onClick={() => setEditModal(false)}>
+            Cancel
+          </CButton>
+        </CModalFooter>
+      </CModal>
+
+      {/* ---------- VIEW MODAL ---------- */}
+      <CModal visible={viewModal} onClose={() => setViewModal(false)}>
+        <CModalHeader>
+          <CModalTitle>View User Details</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          {selectedUser ? (
+            <>
+              <p>
+                <strong>User Name:</strong> {selectedUser.name}
+              </p>
+              <p>
+                <strong>Email ID:</strong> {selectedUser.email}
+              </p>
+              <p>
+                <strong>Status:</strong> {selectedUser.status}
+              </p>
+            </>
+          ) : (
+            <p>No user selected.</p>
+          )}
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setViewModal(false)}>
+            Close
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </div>
   );
 }

@@ -149,9 +149,9 @@ if (role === 'logistics') {
     },
     {
       component: CNavItem,
-      name: 'Trips',
-      to: '/vendor/trips',
-      icon: <CIcon icon={cilClipboard} customClassName="nav-icon" />,
+      name: 'Bookings',
+      to: '/vendor/bookings',
+      icon: <CIcon icon={cilTag} customClassName="nav-icon" />,
     },
     {
       component: CNavItem,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   CButton,
@@ -23,6 +23,22 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [role, setRole] = useState('')
 
+  // ✅ Reset login fields when visiting login page
+  useEffect(() => {
+    setUsername('')
+    setPassword('')
+    setRole('')
+    localStorage.removeItem('isLoggedIn')
+    localStorage.removeItem('role')
+  }, [])
+
+  // Dummy credentials (role-based)
+  const credentials = {
+    logistics: { username: 'logistics', password: 'logi123' },
+    owner: { username: 'owner', password: 'own123' },
+    vendor: { username: 'vendor', password: 'vend123' },
+  }
+
   const handleLogin = (e) => {
     e.preventDefault()
 
@@ -31,17 +47,18 @@ const Login = () => {
       return
     }
 
-    // Example auth check (replace with real API later)
-    if (username === 'admin' && password === '1234') {
+    const validUser = credentials[role]
+
+    if (validUser && username === validUser.username && password === validUser.password) {
       localStorage.setItem('isLoggedIn', 'true')
       localStorage.setItem('role', role)
 
-      // Redirect user by role → match App.jsx structure
+      // Redirect based on role
       if (role === 'logistics') navigate('/logistics/dashboard')
       if (role === 'owner') navigate('/owner/dashboard')
       if (role === 'vendor') navigate('/vendor/dashboard')
     } else {
-      alert('Invalid username or password')
+      alert('Invalid username or password for the selected role')
     }
   }
 

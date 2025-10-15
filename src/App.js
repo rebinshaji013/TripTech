@@ -49,8 +49,7 @@ const OwnerProfile = React.lazy(() => import('./views/pages/driverlogin/Owner/Pr
 
 // Vendor Pages
 const VendorDashboard = React.lazy(() =>import('./views/pages/dashboard/Vendor/Dashboard'))
-const VendorTrips = React.lazy(() =>import('./views/pages/trips/Vendor/Trips'))
-const VendorNewRequest = React.lazy(() =>import('./views/pages/trips/Vendor/NewRequest'))
+const VendorBookings = React.lazy(() =>import('./views/pages/bookings/Vendor/Bookings'))
 const VendorInvites = React.lazy(() => import('./views/pages/invite/Vendor/Invite'))
 const VendorAddInvite = React.lazy(() => import('./views/pages/invite/Vendor/AddInvite'))
 const VendorVehicles = React.lazy(() => import('./views/pages/vehicles/Vendor/Vehicles'))
@@ -198,8 +197,7 @@ const App = () => {
             }
           >
             <Route path="dashboard" element={<VendorDashboard />} />
-            <Route path="trips" element={<VendorTrips />} />
-            <Route path="newrequest" element={<VendorNewRequest />} />
+            <Route path="bookings" element={<VendorBookings />} />
             <Route path="invites" element={<VendorInvites />} />
             <Route path="addinvite" element={<VendorAddInvite />} />
             <Route path="vehicles" element={<VendorVehicles />} />

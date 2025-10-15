@@ -14,17 +14,31 @@ import {
   cilCreditCard,
   cilCommentSquare,
   cilEnvelopeOpen,
-  cilFile,
   cilLockLocked,
   cilSettings,
   cilTask,
   cilUser,
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
+import { useNavigate } from 'react-router-dom' // ✅ import useNavigate
 
 import avatar8 from './../../assets/images/avatars/8.jpg'
 
 const AppHeaderDropdown = () => {
+  const navigate = useNavigate() // ✅ initialize navigate
+
+  const handleLogout = () => {
+    // Clear auth data
+    localStorage.removeItem('isLoggedIn')
+    localStorage.removeItem('role')
+
+    // Navigate to login and ensure UI refresh
+    navigate('/login', { replace: true }) // ✅ smooth navigation
+    setTimeout(() => {
+      window.location.reload() // ✅ force reload only after navigation
+    }, 100)
+  }
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
@@ -32,6 +46,7 @@ const AppHeaderDropdown = () => {
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>
+
         <CDropdownItem href="#">
           <CIcon icon={cilBell} className="me-2" />
           Updates
@@ -39,6 +54,7 @@ const AppHeaderDropdown = () => {
             12
           </CBadge>
         </CDropdownItem>
+
         <CDropdownItem href="#">
           <CIcon icon={cilEnvelopeOpen} className="me-2" />
           Messages
@@ -46,6 +62,7 @@ const AppHeaderDropdown = () => {
             25
           </CBadge>
         </CDropdownItem>
+
         <CDropdownItem href="#">
           <CIcon icon={cilTask} className="me-2" />
           Trips
@@ -53,6 +70,7 @@ const AppHeaderDropdown = () => {
             42
           </CBadge>
         </CDropdownItem>
+
         <CDropdownItem href="#">
           <CIcon icon={cilCommentSquare} className="me-2" />
           Comments
@@ -60,15 +78,19 @@ const AppHeaderDropdown = () => {
             56
           </CBadge>
         </CDropdownItem>
+
         <CDropdownHeader className="bg-body-secondary fw-semibold my-2">Settings</CDropdownHeader>
+
         <CDropdownItem href="#">
           <CIcon icon={cilUser} className="me-2" />
           Profile
         </CDropdownItem>
+
         <CDropdownItem href="#">
           <CIcon icon={cilSettings} className="me-2" />
           Settings
         </CDropdownItem>
+
         <CDropdownItem href="#">
           <CIcon icon={cilCreditCard} className="me-2" />
           Payments
@@ -76,8 +98,11 @@ const AppHeaderDropdown = () => {
             34
           </CBadge>
         </CDropdownItem>
+
         <CDropdownDivider />
-        <CDropdownItem href="#">
+
+        {/* ✅ Working Logout */}
+        <CDropdownItem onClick={handleLogout}>
           <CIcon icon={cilLockLocked} className="me-2" />
           Logout
         </CDropdownItem>

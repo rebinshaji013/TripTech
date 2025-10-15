@@ -62,11 +62,11 @@ export default function TONewRequestDetails() {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'Trip Requested':
+      case 'Requested':
         return <CBadge color="info">{status}</CBadge>
       case 'Quoted':
         return <CBadge color="warning">{status}</CBadge>
-      case 'Trip Approved':
+      case 'Approved':
         return <CBadge color="success">{status}</CBadge>
       case 'Change Requested':
         return <CBadge color="primary">{status}</CBadge>
@@ -285,10 +285,10 @@ export default function TONewRequestDetails() {
                     onChange={handleTripChange}
                   >
                     <option value="">Select Status</option>
-                    <option value="Trip Requested">Trip Requested</option>
+                    <option value="Requested">Requested</option>
                     <option value="Quoted">Quoted</option>
                     <option value="Change Requested">Change Requested</option>
-                    <option value="Trip Approved">Trip Approved</option>
+                    <option value="Approved">Approved</option>
                     <option value="Rejected">Rejected</option>
                   </CFormSelect>
                 </CCol>

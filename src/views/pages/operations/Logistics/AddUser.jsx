@@ -1,16 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  CCard,
-  CCardHeader,
-  CCardBody,
-  CForm,
-  CFormLabel,
-  CFormInput,
-  CFormSelect,
-  CRow,
-  CCol,
-  CButton,
+  CCard, CCardHeader, CCardBody,
+  CForm, CFormInput, CFormSelect,
+  CButton, CModal, CModalHeader, CModalBody, CModalTitle, CModalFooter,
+  CRow, CCol, CFormLabel
 } from "@coreui/react";
 
 export default function OwnerDetails() {
@@ -20,8 +14,9 @@ export default function OwnerDetails() {
     name: "",
     email: "",
     userType: "",
-    status: "",
+    status: "Inactive",
   });
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -37,10 +32,24 @@ export default function OwnerDetails() {
     const newUser = { id: Date.now(), ...formData };
     const updatedUsers = [...existingUsers, newUser];
     localStorage.setItem("operations", JSON.stringify(updatedUsers));
+    setShowFeedback(true);
+  };
 
-    // reset form
+  // Handle activation decision
+  const handleActivationDecision = (activate) => {
+    const updatedStatus = activate ? "Active" : "Inactive";
+    setFormData((prev) => ({ ...prev, status: updatedStatus }));
+
+    // Update the owner in localStorage with the new status
+    const allUsers = JSON.parse(localStorage.getItem("operations") || "[]");
+    const lastUserIndex = allUsers.length - 1;
+    if (lastUserIndex >= 0) {
+      allUsers[lastUserIndex].status = updatedStatus;
+      localStorage.setItem("operations", JSON.stringify(allUsers));
+    }
+
+    setShowFeedback(false);
     setFormData({ name: "", email: "", userType: "", status: "" });
-
     navigate("/logistics/operations");
   };
 
@@ -61,13 +70,13 @@ export default function OwnerDetails() {
 
             <CRow className="mb-3">
               <CCol md={6}>
-                <CFormLabel htmlFor="name">Operation Name</CFormLabel>
+                <CFormLabel htmlFor="name">Operational User Name</CFormLabel>
                 <CFormInput
                   id="name"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Enter operation name"
+                  placeholder="Enter operational name"
                   required
                 />
               </CCol>
@@ -112,8 +121,6 @@ export default function OwnerDetails() {
                   onChange={handleChange}
                   required
                 >
-                  <option value="">Select Status</option>
-                  <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </CFormSelect>
               </CCol>
@@ -127,6 +134,25 @@ export default function OwnerDetails() {
           </CForm>
         </CCardBody>
       </CCard>
+
+      {/* Feedback Modal */}
+      <CModal visible={showFeedback} onClose={() => setShowFeedback(false)}>
+        <CModalHeader>
+          <CModalTitle>Operational User Created</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+        Operational User created successfully. Do you want to activate the created Operational User?
+
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="success" onClick={() => handleActivationDecision(true)}>
+            Yes
+          </CButton>
+          <CButton color="secondary" onClick={() => handleActivationDecision(false)}>
+            No
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </div>
   );
 }

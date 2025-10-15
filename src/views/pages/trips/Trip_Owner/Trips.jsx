@@ -1,65 +1,59 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  CButton,
-  CCard,
-  CCardHeader,
-  CCardBody,
-  CTable,
-  CTableHead,
-  CTableRow,
-  CTableHeaderCell,
-  CTableBody,
-  CTableDataCell,
-  CBadge,
-  CFormLabel,
-  CModal,
-  CModalHeader,
-  CModalBody,
-  CModalFooter,
-  CFormSelect,
+  CButton, CCard, CCardHeader, CCardBody,
+  CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell,
+  CBadge, CModal, CModalHeader, CModalBody, CModalFooter,
+  CForm, CFormInput, CFormSelect, CFormTextarea,
 } from "@coreui/react";
-import { cilPencil, cilTrash, cilControl } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
+import { cilPencil, cilTrash, cilControl, cilMagnifyingGlass } from "@coreui/icons";
 
 export default function TOTripsListings() {
   const navigate = useNavigate();
   const [trips, setTrips] = useState([]);
   const [operationData, setOperationData] = useState([]);
 
-  // Assign Modal state
+  // Modals
   const [assignModalVisible, setAssignModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [viewModalVisible, setViewModalVisible] = useState(false);
+
   const [selectedTripIndex, setSelectedTripIndex] = useState(null);
   const [assignTo, setAssignTo] = useState("");
+  const [editTrip, setEditTrip] = useState({});
+  const [viewTrip, setViewTrip] = useState({});
 
+  const [drivers, setDrivers] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [tripCosts, setTripCosts] = useState([]);
+  const [tripIncharges, setTripIncharges] = useState([]);
+
+  // Load data
   useEffect(() => {
-    const storedTrips = JSON.parse(localStorage.getItem("trips")) || [];
-    setTrips(storedTrips);
+    setTrips(JSON.parse(localStorage.getItem("trips")) || []);
+    setOperationData(JSON.parse(localStorage.getItem("owneroperations")) || []);
+    setDrivers(JSON.parse(localStorage.getItem("drivers")) || []);
+    setVehicles(JSON.parse(localStorage.getItem("vehicles")) || []);
+    setTripCosts(JSON.parse(localStorage.getItem("tripCosts")) || []);
+    setTripIncharges(JSON.parse(localStorage.getItem("tripIncharges")) || []);
   }, []);
 
-  useEffect(() => {
-    const storedOps = JSON.parse(localStorage.getItem("owneroperations")) || [];
-    setOperationData(storedOps);
-  }, []);
-
-
+  // Badge color logic
   const getStatusBadge = (status) => {
     switch (status) {
-      case "Request":
-        return <CBadge color="info">{status}</CBadge>;
-      case "Quoted":
-        return <CBadge color="warning">{status}</CBadge>;
-      case "Approval":
-        return <CBadge color="success">{status}</CBadge>;
-      case "Rejected":
-        return <CBadge color="danger">{status}</CBadge>;
-      default:
-        return <CBadge color="secondary">{status}</CBadge>;
+      case "Requested": return <CBadge color="info">{status}</CBadge>;
+      case "Quoted": return <CBadge color="warning">{status}</CBadge>;
+      case "Approval": return <CBadge color="success">{status}</CBadge>;
+      case "Rejected": return <CBadge color="danger">{status}</CBadge>;
+      default: return <CBadge color="secondary">{status}</CBadge>;
     }
   };
 
+  // Navigate to create new
   const handleNewRequest = () => navigate("/owner/newrequest");
 
+  // Delete trip
   const handleDeleteTrip = (index) => {
     if (!window.confirm("Are you sure you want to delete this trip?")) return;
     const updatedTrips = trips.filter((_, i) => i !== index);
@@ -67,6 +61,7 @@ export default function TOTripsListings() {
     localStorage.setItem("trips", JSON.stringify(updatedTrips));
   };
 
+  // Assign trip
   const handleAssignClick = (index) => {
     setSelectedTripIndex(index);
     setAssignTo(trips[index].assigned || "");
@@ -82,81 +77,188 @@ export default function TOTripsListings() {
     setAssignModalVisible(false);
   };
 
+  // Edit trip
+  const handleEditClick = (index) => {
+    setSelectedTripIndex(index);
+    setEditTrip({ ...trips[index] });
+    setEditModalVisible(true);
+  };
+
+  const handleEditChange = (e) => {
+    setEditTrip({ ...editTrip, [e.target.name]: e.target.value });
+  };
+
+  const handleEditSave = () => {
+    const updatedTrips = [...trips];
+    updatedTrips[selectedTripIndex] = editTrip;
+    setTrips(updatedTrips);
+    localStorage.setItem("trips", JSON.stringify(updatedTrips));
+    setEditModalVisible(false);
+  };
+
+  // View trip details
+  const handleViewClick = (index) => {
+    const trip = trips[index];
+    setViewTrip(trip);
+    setViewModalVisible(true);
+  };
+
+  const getLinkedData = (trip) => ({
+    driver: drivers.find((d) => d.tripOwner === trip.tripOwner) || {},
+    vehicle: vehicles.find((v) => v.tripOwner === trip.tripOwner) || {},
+    cost: tripCosts.find((c) => c.tripOwner === trip.tripOwner) || {},
+    incharge: tripIncharges.find((i) => i.tripOwner === trip.tripOwner) || {},
+  });
+
   return (
     <div className="p-3">
-       <CCard>
+      <CCard>
         <CCardHeader className="d-flex justify-content-between align-items-center">
           <h5>Trip Listing</h5>
           <CButton color="primary" size="sm" onClick={handleNewRequest}>
             New Request
           </CButton>
         </CCardHeader>
-          <CCardBody>
-            <CTable hover responsive bordered small>
-              <CTableHead color="light">
-                <CTableRow>
-                  <CTableHeaderCell>Trip Owner</CTableHeaderCell>
-                  <CTableHeaderCell>Trip Type</CTableHeaderCell>
-                  <CTableHeaderCell>Start Point</CTableHeaderCell>
-                  <CTableHeaderCell>Start Date</CTableHeaderCell>
-                  <CTableHeaderCell>Requested Date</CTableHeaderCell>
-                  <CTableHeaderCell>Assigned To</CTableHeaderCell>
-                  <CTableHeaderCell>Status</CTableHeaderCell>
-                  <CTableHeaderCell className="text-center">Action</CTableHeaderCell>
-                </CTableRow>
-              </CTableHead>
-              <CTableBody>
-                {trips.length > 0 ? (
-                  trips.map((trip, idx) => (
-                    <CTableRow key={idx}>
-                      <CTableDataCell>{trip.tripOwner}</CTableDataCell>
-                      <CTableDataCell>{trip.tripType}</CTableDataCell>
-                      <CTableDataCell>{trip.startPoint}</CTableDataCell>
-                      <CTableDataCell>{trip.startDate}</CTableDataCell>
-                      <CTableDataCell>{trip.requestedDate}</CTableDataCell>
-                      <CTableDataCell>{trip.assigned}</CTableDataCell>
-                      <CTableDataCell>{getStatusBadge(trip.status)}</CTableDataCell>
-                      <CTableDataCell className="text-center">
-                        <CButton size="sm" color="info" variant="ghost" className="me-1">
-                          <CIcon icon={cilPencil} />
-                        </CButton>
-                        <CButton
-                          size="sm"
-                          color="success"
-                          variant="ghost"
-                          className="me-1"
-                          onClick={() => handleAssignClick(idx)}
-                        >
-                          <CIcon icon={cilControl} />
-                        </CButton>
-                        <CButton
-                          size="sm"
-                          color="danger"
-                          variant="ghost"
-                          onClick={() => handleDeleteTrip(idx)}
-                        >
-                          <CIcon icon={cilTrash} />
-                        </CButton>
-                      </CTableDataCell>
-                    </CTableRow>
-                  ))
-                ) : (
-                  <CTableRow>
-                    <CTableDataCell colSpan={8} className="text-center">
-                      No trips found. Click "New Request" to add one.
+
+        <CCardBody>
+          <CTable hover responsive bordered small>
+            <CTableHead color="light">
+              <CTableRow>
+                <CTableHeaderCell>Trip Owner</CTableHeaderCell>
+                <CTableHeaderCell>Trip Type</CTableHeaderCell>
+                <CTableHeaderCell>Start Point</CTableHeaderCell>
+                <CTableHeaderCell>Start Date</CTableHeaderCell>
+                <CTableHeaderCell>Requested Date</CTableHeaderCell>
+                <CTableHeaderCell>Assigned To</CTableHeaderCell>
+                <CTableHeaderCell>Status</CTableHeaderCell>
+                <CTableHeaderCell className="text-center">Action</CTableHeaderCell>
+              </CTableRow>
+            </CTableHead>
+
+            <CTableBody>
+              {trips.length > 0 ? (
+                trips.map((trip, idx) => (
+                  <CTableRow key={idx}>
+                    <CTableDataCell>{trip.tripOwner}</CTableDataCell>
+                    <CTableDataCell>{trip.tripType}</CTableDataCell>
+                    <CTableDataCell>{trip.startPoint}</CTableDataCell>
+                    <CTableDataCell>{trip.startDate}</CTableDataCell>
+                    <CTableDataCell>{trip.requestedDate}</CTableDataCell>
+                    <CTableDataCell>{trip.assigned}</CTableDataCell>
+                    <CTableDataCell>{getStatusBadge(trip.status)}</CTableDataCell>
+                    <CTableDataCell className="text-center">
+                      <CButton
+                        size="sm"
+                        color="info"
+                        variant="ghost"
+                        className="me-1"
+                        onClick={() => handleEditClick(idx)}
+                      >
+                        <CIcon icon={cilPencil} />
+                      </CButton>
+
+                      <CButton
+                        size="sm"
+                        color="secondary"
+                        variant="ghost"
+                        className="me-1"
+                        onClick={() => handleViewClick(idx)}
+                      >
+                        <CIcon icon={cilMagnifyingGlass} />
+                      </CButton>
+
+                      <CButton
+                        size="sm"
+                        color="success"
+                        variant="ghost"
+                        className="me-1"
+                        onClick={() => handleAssignClick(idx)}
+                      >
+                        <CIcon icon={cilControl} />
+                      </CButton>
+
+                      <CButton
+                        size="sm"
+                        color="danger"
+                        variant="ghost"
+                        onClick={() => handleDeleteTrip(idx)}
+                      >
+                        <CIcon icon={cilTrash} />
+                      </CButton>
                     </CTableDataCell>
                   </CTableRow>
-                )}
-              </CTableBody>
-            </CTable>
-          </CCardBody>
-        </CCard>
+                ))
+              ) : (
+                <CTableRow>
+                  <CTableDataCell colSpan={8} className="text-center">
+                    No trips found. Click "New Request" to add one.
+                  </CTableDataCell>
+                </CTableRow>
+              )}
+            </CTableBody>
+          </CTable>
+        </CCardBody>
+      </CCard>
 
-      {/* Assign Modal */}
+      {/* ===== Edit Trip Modal ===== */}
+      <CModal visible={editModalVisible} onClose={() => setEditModalVisible(false)} size="lg">
+        <CModalHeader>Edit Trip Details</CModalHeader>
+        <CModalBody>
+          <CForm>
+            <CFormInput label="Trip Owner" name="tripOwner" value={editTrip.tripOwner || ""} onChange={handleEditChange} />
+            <CFormSelect label="Trip Type" name="tripType" value={editTrip.tripType || ""} onChange={handleEditChange}>
+              <option value="">Select Type</option>
+              <option value="Halfday Trip">Halfday Trip</option>
+              <option value="Fullday Trip">Fullday Trip</option>
+            </CFormSelect>
+            <CFormInput type="text" label="Start Point" name="startPoint" value={editTrip.startPoint || ""} onChange={handleEditChange} />
+            <CFormInput type="text" label="End Point" name="endPoint" value={editTrip.endPoint || ""} onChange={handleEditChange} />
+            <CFormInput type="date" label="Start Date" name="startDate" value={editTrip.startDate || ""} onChange={handleEditChange} />
+            <CFormInput type="date" label="Requested Date" name="requestedDate" value={editTrip.requestedDate || ""} onChange={handleEditChange} />
+            <CFormSelect label="Status" name="status" value={editTrip.status || ""} onChange={handleEditChange}>
+              <option value="">Select Status</option>
+              <option value="Request">Request</option>
+              <option value="Quoted">Quoted</option>
+              <option value="Approval">Approval</option>
+              <option value="Rejected">Rejected</option>
+            </CFormSelect>
+            <CFormTextarea label="Information" name="information" rows="3" value={editTrip.information || ""} onChange={handleEditChange} />
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setEditModalVisible(false)}>Cancel</CButton>
+          <CButton color="primary" onClick={handleEditSave}>Save Changes</CButton>
+        </CModalFooter>
+      </CModal>
+
+      {/* ===== View Trip Modal ===== */}
+      <CModal visible={viewModalVisible} onClose={() => setViewModalVisible(false)} size="lg">
+        <CModalHeader>Trip Details</CModalHeader>
+        <CModalBody>
+          {viewTrip ? (
+            <>
+              <h6>Trip Owner: {viewTrip.tripOwner}</h6>
+              <p><strong>Trip Type:</strong> {viewTrip.tripType}</p>
+              <p><strong>Start Point:</strong> {viewTrip.startPoint} → {viewTrip.endPoint}</p>
+              <p><strong>Start Date:</strong> {viewTrip.startDate}</p>
+              <p><strong>Requested Date:</strong> {viewTrip.requestedDate}</p>
+              <p><strong>Status:</strong> {viewTrip.status}</p>
+              <p><strong>Assigned To:</strong> {viewTrip.assigned || "-"}</p>
+              <p><strong>Information:</strong> {viewTrip.information || "N/A"}</p>
+            </>
+          ) : (
+            <p>No data found.</p>
+          )}
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setViewModalVisible(false)}>Close</CButton>
+        </CModalFooter>
+      </CModal>
+
+      {/* ===== Assign Modal ===== */}
       <CModal visible={assignModalVisible} onClose={() => setAssignModalVisible(false)}>
         <CModalHeader>Assign Trip</CModalHeader>
         <CModalBody>
-          <CFormLabel>Select User:</CFormLabel>
           <CFormSelect value={assignTo} onChange={(e) => setAssignTo(e.target.value)}>
             <option value="">-- Select User --</option>
             {trips.map((trip, idx) => (
@@ -172,12 +274,8 @@ export default function TOTripsListings() {
           </CFormSelect>
         </CModalBody>
         <CModalFooter>
-          <CButton color="secondary" onClick={() => setAssignModalVisible(false)}>
-            Cancel
-          </CButton>
-          <CButton color="primary" onClick={handleAssignSave} disabled={!assignTo}>
-            Save
-          </CButton>
+          <CButton color="secondary" onClick={() => setAssignModalVisible(false)}>Cancel</CButton>
+          <CButton color="primary" onClick={handleAssignSave} disabled={!assignTo}>Save</CButton>
         </CModalFooter>
       </CModal>
     </div>
