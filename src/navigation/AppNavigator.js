@@ -15,6 +15,10 @@ import TripsScreen from '../screens/TripsScreen';
 import RatingScreen from '../screens/RatingScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import TripInformationScreen from '../screens/TripInformationScreen';
+import UploadedDocumentsScreen from '../screens/UploadedDocumentsScreen';
+import VehicleReservationScreen from '../screens/VehicleReservationScreen';
+import LocationSearchScreen from '../screens/LocationSearchScreen';
+import VehicleSelectionScreen from '../screens/VehicleSelectionScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -123,6 +127,49 @@ const AppNavigator = () => {
                 },
               }}
             />
+            <Stack.Screen
+              name="UploadedDocuments"
+              component={UploadedDocumentsScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="VehicleReservation"
+              component={VehicleReservationScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="LocationSearch"
+              component={LocationSearchScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="VehicleSelection"
+              component={VehicleSelectionScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            {/*<Stack.Screen
+              name="EditProfile"
+              component={EditProfileScreen}
+              options={{
+                headerShown: true,
+                title: 'Edit Profile',
+                headerStyle: {
+                  backgroundColor: '#007AFF',
+                },
+                headerTintColor: '#fff',
+                headerTitleStyle: {
+                  fontWeight: 'bold',
+                },
+              }}
+            />*/}
           </>
         )}
       </Stack.Navigator>

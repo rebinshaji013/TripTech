@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../store/tripSlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -12,6 +13,7 @@ const Colors = useColors();
 
 const ProfileScreen = () => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const user = useSelector(state => state.trip.user);
 
   const handleLogout = () => {
@@ -34,55 +36,59 @@ const ProfileScreen = () => {
 
   const handleNotificationPress = () => {};
 
+  const handleUploadedDocuments = () => {
+      navigation.navigate('UploadedDocuments');
+  };
+
   return (
     <View style={styles.container}>
      <CommonHeader onNotificationPress={handleNotificationPress} />
     <ScrollView>
-      
+
       <View style={styles.profileSection}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>
             {user?.name ? user.name.charAt(0).toUpperCase() : 'E'}
           </Text>
         </View>
-        
+
         <Text style={styles.userName}>Ethan Carter</Text>
         <Text style={styles.userId}>Driver ID: 123456</Text>
       </View>
-      
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>ACCOUNT</Text>
-        
+
         <TouchableOpacity style={styles.menuItem}>
           <Text style={styles.menuText}>Edit Profile</Text>
           <Icon name="keyboard-arrow-right" size={24} color="#ccc" />
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.menuItem}>
+
+        <TouchableOpacity style={styles.menuItem}  onPress={handleUploadedDocuments}>
           <Text style={styles.menuText}>Uploaded Documents</Text>
           <Icon name="keyboard-arrow-right" size={24} color="#ccc" />
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.menuItem}>
           <Text style={styles.menuText}>Change Password</Text>
           <Icon name="keyboard-arrow-right" size={24} color="#ccc" />
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>SUPPORT</Text>
-        
+
         <TouchableOpacity style={styles.menuItem}>
           <Text style={styles.menuText}>Help & Support</Text>
           <Icon name="keyboard-arrow-right" size={24} color="#ccc" />
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.menuItem}>
           <Text style={styles.menuText}>Privacy Policy</Text>
           <Icon name="keyboard-arrow-right" size={24} color="#ccc" />
         </TouchableOpacity>
       </View>
-      
+
       <TouchableOpacity style={[styles.logoutButton,  { backgroundColor: Colors.primaryLight }]} onPress={handleLogout}>
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>

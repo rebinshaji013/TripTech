@@ -1,5 +1,14 @@
+// src/screens/TripInformationScreen.js
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Dimensions,
+} from 'react-native';
 import { IconButton } from 'react-native-paper';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,6 +16,7 @@ import { setTripDetails, updateMilestoneStatus, confirmTrip } from '../store/tri
 import { fetchTripDetails } from '../store/tripActions';
 import Fonts from '../utilities/fonts';
 import useColors from '../hooks/useColors';
+import AddRequestModal from '../components/AddRequestModal';
 
 const Colors = useColors();
 const { width, height } = Dimensions.get('window');
@@ -16,6 +26,7 @@ const TripInformationScreen = ({ navigation, route }) => {
   const { currentTrip, loading, error } = useSelector(state => state.trip);
   const tripId = route.params?.tripId || route.params?.trip?.id;
   const [region, setRegion] = useState(null);
+  const [showRequestModal, setShowRequestModal] = useState(false);
 
   // Mock coordinates for trip locations
   const pickupCoords = {
@@ -92,11 +103,49 @@ const TripInformationScreen = ({ navigation, route }) => {
 
   const handleConfirm = () => {
     dispatch(confirmTrip());
-    navigation.goBack();
+    navigation.navigate('VehicleReservation', {
+      vehicle: {
+        name: 'Xiaomi One-S Scooter',
+        id: '#3451A',
+        time: '06:43',
+        price: '€1,43',
+        battery: 85,
+        location: {
+          latitude: 37.78825,
+          longitude: -122.4324,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        }
+      }
+    });
   };
 
   const handleAddRequest = () => {
-    // navigation.navigate('AddRequest', { tripId: currentTrip?.id });
+    setShowRequestModal(true);
+  };
+
+  const handleSubmitRequest = (requestData) => {
+    console.log('Request submitted:', requestData);
+    dispatch(confirmTrip());
+    navigation.navigate('VehicleReservation', {
+      vehicle: {
+        name: 'Xiaomi One-S Scooter',
+        id: '#3451A',
+        time: '06:43',
+        price: '€1,43',
+        battery: 85,
+        location: {
+          latitude: 37.78825,
+          longitude: -122.4324,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        }
+      }
+    });
+  };
+
+  const handleCloseModal = () => {
+    setShowRequestModal(false);
   };
 
   const renderMarker = (coordinate, index, isWaypoint = false) => (
@@ -166,6 +215,14 @@ const TripInformationScreen = ({ navigation, route }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.background }}>
+
+      {/* Add Request Modal */}
+      <AddRequestModal
+        visible={showRequestModal}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitRequest}
+        tripDetails={currentTrip}
+      />
 
       {/* Header */}
       <View style={styles.header}>
@@ -368,27 +425,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 10,
     fontWeight: 'bold',
-  },
-  mapLegend: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 12,
-    paddingHorizontal: 10,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  legendColor: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  legendText: {
-    fontSize: 10,
-    fontFamily: Fonts.urbanist.medium,
-    color: Colors.textSecondary,
   },
   address: {
     fontSize: 14,

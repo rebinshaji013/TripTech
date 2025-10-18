@@ -8,6 +8,9 @@ const colors = {
   secondary: '#FF9500',
   secondaryDark: '#CC7700',
   secondaryLight: '#FFB366',
+
+  //Buttons Colors
+  green: '#0CC25E',
   
   // Status Colors
   success: '#4CAF50',
