@@ -19,6 +19,8 @@ const LogisticsTrips = React.lazy(() =>import('./views/pages/trips/Logistics/Tri
 const LogisticsNewRequest = React.lazy(() =>import('./views/pages/trips/Logistics/NewRequest'))
 const LogisticsBookings = React.lazy(() =>import('./views/pages/bookings/Logistics/Bookings'))
 const LogisticsNewBooking = React.lazy(() =>import('./views/pages/bookings/Logistics/NewBooking'))
+const LogisticsTripTypes = React.lazy(() =>import('./views/pages/services/Logistics/TripTypes'))
+const LogisticsAddTripType = React.lazy(() =>import('./views/pages/services/Logistics/AddTripType'))
 const LogisticsInvites = React.lazy(() => import('./views/pages/invite/Logistics/Invite'))
 const LogisticsAddInvite = React.lazy(() => import('./views/pages/invite/Logistics/AddInvite'))
 const LogisticsVehicles = React.lazy(() => import('./views/pages/vehicles/Logistics/Vehicles'))
@@ -27,8 +29,6 @@ const LogisticsDrivers = React.lazy(() => import('./views/pages/drivers/Logistic
 const LogisticsAddDriver = React.lazy(() => import('./views/pages/drivers/Logistics/AddDriver'))
 const Vendors = React.lazy(() => import('./views/pages/vendors/Vendor'))
 const AddVendor = React.lazy(() => import('./views/pages/vendors/AddVendor'))
-const Services = React.lazy(() =>import('./views/pages/servicesmanagement/Services'))
-const AddService = React.lazy(() =>import('./views/pages/servicesmanagement/AddService'))
 const Owners = React.lazy(() => import('./views/pages/owners/Owners'))
 const AddOwner = React.lazy(() => import('./views/pages/owners/AddOwner'))
 const LogisticsOperations = React.lazy(() => import('./views/pages/operations/Logistics/Operations'))
@@ -149,6 +149,8 @@ const App = () => {
             <Route path="newrequest" element={<LogisticsNewRequest />} />
             <Route path="bookings" element={<LogisticsBookings />} />
             <Route path="newbooking" element={<LogisticsNewBooking/>} />
+            <Route path="triptypes" element={<LogisticsTripTypes />} />
+            <Route path="addtriptype" element={<LogisticsAddTripType />} />
             <Route path="invites" element={<LogisticsInvites />} />
             <Route path="addinvite" element={<LogisticsAddInvite />} />
             <Route path="vehicles" element={<LogisticsVehicles />} />
@@ -157,8 +159,6 @@ const App = () => {
             <Route path="adddriver" element={<LogisticsAddDriver />} />
             <Route path="vendors" element={<Vendors />} />
             <Route path="addvendor" element={<AddVendor />} />
-            <Route path="services" element={<Services />} />
-            <Route path="addservice" element={<AddService />} />
             <Route path="owners" element={<Owners />} />
             <Route path="addowner" element={<AddOwner />} />
             <Route path="operations" element={<LogisticsOperations />} />

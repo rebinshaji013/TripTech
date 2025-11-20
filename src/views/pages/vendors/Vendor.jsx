@@ -63,7 +63,7 @@ export default function Vendors() {
   };
 
   const handleSaveEdit = () => {
-    if (!currentVendor.name || !currentVendor.company) {
+    if (!currentVendor.company || !currentVendor.contact) {
       alert("Please fill all required fields.");
       return;
     }
@@ -90,9 +90,10 @@ export default function Vendors() {
           <CTable hover responsive bordered>
             <CTableHead color="light">
               <CTableRow>
-                <CTableHeaderCell>Vendor Type</CTableHeaderCell>
-                <CTableHeaderCell>Vendor Name</CTableHeaderCell>
-                <CTableHeaderCell>Vendor Location</CTableHeaderCell>
+                <CTableHeaderCell>Company Name</CTableHeaderCell>
+                <CTableHeaderCell>Company Contact</CTableHeaderCell>
+                <CTableHeaderCell>Email</CTableHeaderCell>
+                <CTableHeaderCell>Location</CTableHeaderCell>
                 <CTableHeaderCell>Status</CTableHeaderCell>
                 <CTableHeaderCell>Actions</CTableHeaderCell>
               </CTableRow>
@@ -101,14 +102,15 @@ export default function Vendors() {
               {vendors.length > 0 ? (
                 vendors.map((vendor, idx) => (
                   <CTableRow key={idx}>
-                    <CTableDataCell>{vendor.type}</CTableDataCell>
-                    <CTableDataCell>{vendor.name}</CTableDataCell>
-                    <CTableDataCell>{vendor.address}</CTableDataCell>
+                    <CTableDataCell>{vendor.company || "-"}</CTableDataCell>
+                    <CTableDataCell>{vendor.contact || "-"}</CTableDataCell>
+                    <CTableDataCell>{vendor.email || "-"}</CTableDataCell>
+                    <CTableDataCell>{vendor.location || "-"}</CTableDataCell>
                     <CTableDataCell>
                       <CBadge
                         color={vendor.status === "Active" ? "success" : "secondary"}
                       >
-                        {vendor.status}
+                        {vendor.status || "Inactive"}
                       </CBadge>
                     </CTableDataCell>
                     <CTableDataCell className="text-center">
@@ -143,7 +145,7 @@ export default function Vendors() {
                 ))
               ) : (
                 <CTableRow>
-                  <CTableDataCell colSpan={5} className="text-center">
+                  <CTableDataCell colSpan={6} className="text-center">
                     No vendors added yet.
                   </CTableDataCell>
                 </CTableRow>
@@ -173,9 +175,35 @@ export default function Vendors() {
                 className="mb-2"
               />
               <CFormInput
-                label="Vendor Name"
-                name="name"
-                value={currentVendor.name || ""}
+                label="Company Contact"
+                name="contact"
+                value={currentVendor.contact || ""}
+                onChange={handleEditChange}
+                className="mb-2"
+              />
+              <CFormSelect
+                label="Company Type"
+                name="type"
+                value={currentVendor.type || ""}
+                onChange={handleEditChange}
+                className="mb-2"
+              >
+                <option value="">Select Company Type</option>
+                <option value="Event company">Event company</option>
+                <option value="Travel Agency">Travel Agency</option>
+                <option value="Direct Client">Direct Client</option>
+              </CFormSelect>
+              <CFormInput
+                label="Email"
+                name="email"
+                value={currentVendor.email || ""}
+                onChange={handleEditChange}
+                className="mb-2"
+              />
+              <CFormInput
+                label="Mobile Number"
+                name="mobile"
+                value={currentVendor.mobile || ""}
                 onChange={handleEditChange}
                 className="mb-2"
               />
@@ -187,30 +215,19 @@ export default function Vendors() {
                 className="mb-2"
               />
               <CFormInput
-                label="Email"
-                name="email"
-                value={currentVendor.email || ""}
+                label="Location"
+                name="location"
+                value={currentVendor.location || ""}
                 onChange={handleEditChange}
                 className="mb-2"
               />
               <CFormInput
-                label="Mobile"
-                name="mobile"
-                value={currentVendor.mobile || ""}
+                label="Country"
+                name="country"
+                value={currentVendor.country || ""}
                 onChange={handleEditChange}
                 className="mb-2"
               />
-              <CFormSelect
-                label="Type"
-                name="type"
-                value={currentVendor.type || ""}
-                onChange={handleEditChange}
-                className="mb-2"
-              >
-                <option value="">Select Type</option>
-                <option value="Manager">Manager</option>
-                <option value="Staff">Staff</option>
-              </CFormSelect>
               <CFormSelect
                 label="Status"
                 name="status"
@@ -248,28 +265,36 @@ export default function Vendors() {
             <CTable bordered>
               <CTableBody>
                 <CTableRow>
-                  <CTableDataCell>Company</CTableDataCell>
-                  <CTableDataCell>{currentVendor.company}</CTableDataCell>
+                  <CTableDataCell>Company Name</CTableDataCell>
+                  <CTableDataCell>{currentVendor.company || "-"}</CTableDataCell>
                 </CTableRow>
                 <CTableRow>
-                  <CTableDataCell>Vendor Name</CTableDataCell>
-                  <CTableDataCell>{currentVendor.name}</CTableDataCell>
+                  <CTableDataCell>Company Contact</CTableDataCell>
+                  <CTableDataCell>{currentVendor.contact || "-"}</CTableDataCell>
                 </CTableRow>
                 <CTableRow>
-                  <CTableDataCell>Address</CTableDataCell>
-                  <CTableDataCell>{currentVendor.address}</CTableDataCell>
+                  <CTableDataCell>Company Type</CTableDataCell>
+                  <CTableDataCell>{currentVendor.type || "-"}</CTableDataCell>
                 </CTableRow>
                 <CTableRow>
                   <CTableDataCell>Email</CTableDataCell>
-                  <CTableDataCell>{currentVendor.email}</CTableDataCell>
+                  <CTableDataCell>{currentVendor.email || "-"}</CTableDataCell>
                 </CTableRow>
                 <CTableRow>
-                  <CTableDataCell>Mobile</CTableDataCell>
-                  <CTableDataCell>{currentVendor.mobile}</CTableDataCell>
+                  <CTableDataCell>Mobile Number</CTableDataCell>
+                  <CTableDataCell>{currentVendor.mobile || "-"}</CTableDataCell>
                 </CTableRow>
                 <CTableRow>
-                  <CTableDataCell>Type</CTableDataCell>
-                  <CTableDataCell>{currentVendor.type}</CTableDataCell>
+                  <CTableDataCell>Address</CTableDataCell>
+                  <CTableDataCell>{currentVendor.address || "-"}</CTableDataCell>
+                </CTableRow>
+                <CTableRow>
+                  <CTableDataCell>Location</CTableDataCell>
+                  <CTableDataCell>{currentVendor.location || "-"}</CTableDataCell>
+                </CTableRow>
+                <CTableRow>
+                  <CTableDataCell>Country</CTableDataCell>
+                  <CTableDataCell>{currentVendor.country || "-"}</CTableDataCell>
                 </CTableRow>
                 <CTableRow>
                   <CTableDataCell>Status</CTableDataCell>
@@ -281,7 +306,7 @@ export default function Vendors() {
                           : "secondary"
                       }
                     >
-                      {currentVendor.status}
+                      {currentVendor.status || "Inactive"}
                     </CBadge>
                   </CTableDataCell>
                 </CTableRow>

@@ -32,11 +32,20 @@ const Login = () => {
     localStorage.removeItem('role')
   }, [])
 
-  // Dummy credentials (role-based)
+  // Dummy credentials (role-based) - 2 credentials for each role
   const credentials = {
-    logistics: { username: 'logistics', password: 'logi123' },
-    owner: { username: 'owner', password: 'own123' },
-    vendor: { username: 'vendor', password: 'vend123' },
+    logistics: [
+      { username: 'logistics', password: 'logi123' },
+      { username: 'logistics2', password: 'logi456' }
+    ],
+    owner: [
+      { username: 'owner', password: 'own123' },
+      { username: 'owner2', password: 'own456' }
+    ],
+    vendor: [
+      { username: 'vendor', password: 'vend123' },
+      { username: 'vendor2', password: 'vend456' }
+    ],
   }
 
   const handleLogin = (e) => {
@@ -47,9 +56,12 @@ const Login = () => {
       return
     }
 
-    const validUser = credentials[role]
+    const roleUsers = credentials[role]
+    const validUser = roleUsers.find(
+      user => user.username === username && user.password === password
+    )
 
-    if (validUser && username === validUser.username && password === validUser.password) {
+    if (validUser) {
       localStorage.setItem('isLoggedIn', 'true')
       localStorage.setItem('role', role)
 

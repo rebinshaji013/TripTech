@@ -13,13 +13,14 @@ export default function VehicleDetails() {
   const navigate = useNavigate();
 
   const [vehicle, setVehicle] = useState({
-    vehicleType: "",
     vehicleClass: "",
-    vehicleSeating: "",
-    owner: "",
-    make: "",
+    brand: "",
+    model: "",
     year: "",
-    vendor: "",
+    vehicleSeating: "",
+    licensePlate: "",
+    registrationExpiry: "",
+    assignedDriver: "",
     status: "Inactive",
   });
 
@@ -27,22 +28,84 @@ export default function VehicleDetails() {
   const [documents, setDocuments] = useState([]);
   const [showFeedback, setShowFeedback] = useState(false);
   const [showDocModal, setShowDocModal] = useState(false);
-  const [vendors, setVendors] = useState([]);
+  const [drivers, setDrivers] = useState([]);
 
-  // 🔹 Load Vendor List from localStorage
+  // Brand options
+  const brandOptions = [
+    "Toyota", "Honda", "Ford", "BMW", "Mercedes-Benz", 
+    "Audi", "Hyundai", "Kia", "Nissan", "Volkswagen",
+    "Chevrolet", "Mazda", "Lexus", "Volvo", "Jeep"
+  ];
+
+  // Model options based on brand
+  const modelOptions = {
+    "Toyota": ["Camry", "Corolla", "RAV4", "Highlander", "Prius", "Hilux"],
+    "Honda": ["Civic", "Accord", "CR-V", "Pilot", "City"],
+    "Ford": ["F-150", "Explorer", "Escape", "Mustang", "Focus"],
+    "BMW": ["3 Series", "5 Series", "X3", "X5", "7 Series"],
+    "Mercedes-Benz": ["C-Class", "E-Class", "S-Class", "GLC", "GLE"],
+    "Audi": ["A4", "A6", "Q5", "Q7", "A3"],
+    "Hyundai": ["Elantra", "Tucson", "Santa Fe", "Creta", "i20"],
+    "Kia": ["Seltos", "Sonet", "Carnival", "Sorento", "Rio"],
+    "Nissan": ["Altima", "Sentra", "Rogue", "Pathfinder", "X-Trail"],
+    "Volkswagen": ["Golf", "Passat", "Tiguan", "Jetta", "Polo"],
+    "Chevrolet": ["Malibu", "Equinox", "Tahoe", "Spark", "Trax"],
+    "Mazda": ["Mazda3", "Mazda6", "CX-5", "CX-9", "CX-30"],
+    "Lexus": ["ES", "RX", "NX", "LS", "UX"],
+    "Volvo": ["XC60", "XC90", "S60", "S90", "XC40"],
+    "Jeep": ["Wrangler", "Grand Cherokee", "Compass", "Renegade", "Cherokee"]
+  };
+
+  // Year options from 2015 to 2025
+  const yearOptions = Array.from({ length: 11 }, (_, i) => (2025 - i).toString());
+
+  // 🔹 Load Drivers from localStorage
   useEffect(() => {
-    const vendorList = JSON.parse(localStorage.getItem("vendors") || "[]");
-    setVendors(vendorList);
+    const driverList = JSON.parse(localStorage.getItem("drivers") || "[]");
+    setDrivers(driverList);
   }, []);
 
   // 🔹 Handle Vehicle Form Change
   const handleVehicleChange = (e) => {
     const { name, value } = e.target;
-    setVehicle((prev) => ({ ...prev, [name]: value }));
+    
+    // Reset model when brand changes
+    if (name === "brand") {
+      setVehicle((prev) => ({ 
+        ...prev, 
+        brand: value,
+        model: "" 
+      }));
+    } else {
+      setVehicle((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  // 🔹 Check registration expiry for notification
+  const getExpiryStatus = (expiryDate) => {
+    if (!expiryDate) return null;
+    
+    const expiry = new Date(expiryDate);
+    const today = new Date();
+    const diffTime = expiry - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+      return { color: "danger", message: "EXPIRED" };
+    } else if (diffDays <= 30) {
+      return { color: "warning", message: "EXPIRING SOON" };
+    } else {
+      return { color: "success", message: "VALID" };
+    }
   };
 
   // 🔹 Save Vehicle Details
   const handleVehicleSave = () => {
+    if (!vehicle.vehicleClass || !vehicle.brand || !vehicle.model) {
+      alert("Please fill in all required fields: Vehicle Class, Brand Name, and Model Name");
+      return;
+    }
+
     const existingVehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
     localStorage.setItem("vehicles", JSON.stringify([...existingVehicles, vehicle]));
     setVehicleAdded(true);
@@ -96,13 +159,14 @@ export default function VehicleDetails() {
     // Reset after save
     setShowFeedback(false);
     setVehicle({
-      vehicleType: "",
       vehicleClass: "",
-      vehicleSeating: "",
-      owner: "",
-      make: "",
+      brand: "",
+      model: "",
       year: "",
-      vendor: "",
+      vehicleSeating: "",
+      licensePlate: "",
+      registrationExpiry: "",
+      assignedDriver: "",
       status: "Inactive",
     });
     setDocuments([]);
@@ -110,6 +174,8 @@ export default function VehicleDetails() {
 
     navigate("/logistics/vehicles");
   };
+
+  const expiryStatus = getExpiryStatus(vehicle.registrationExpiry);
 
   return (
     <div className="p-3">
@@ -121,40 +187,78 @@ export default function VehicleDetails() {
           <CAccordion alwaysOpen>
             {/* 🔹 Section 1 — Add / Update Vehicle */}
             <CAccordionItem itemKey={1}>
-              <CAccordionHeader>Add / Update Vehicle</CAccordionHeader>
+              <CAccordionHeader>Add Vehicle</CAccordionHeader>
               <CAccordionBody>
                 <CForm>
+                  {/* Vehicle Class */}
                   <CFormSelect
-                    label="Vehicle Class"
+                    label="Vehicle Class *"
                     name="vehicleClass"
                     value={vehicle.vehicleClass}
-                    onChange={(e) => {
-                      const updated = {
-                        ...vehicle,
-                        vehicleClass: e.target.value,
-                        vehicleType: `${e.target.value} ${vehicle.vehicleSeating || ""}`.trim(),
-                      };
-                      setVehicle(updated);
-                    }}
+                    onChange={handleVehicleChange}
                     className="mb-2"
                   >
-                    <option value="">Select Class</option>
-                    <option value="Normal">Normal</option>
+                    <option value="">Select Vehicle Class</option>
+                    <option value="Standard">Standard</option>
                     <option value="Luxury">Luxury</option>
+                    <option value="Premium">Premium</option>
                   </CFormSelect>
 
+                  {/* Brand Name */}
+                  <CFormSelect
+                    label="Brand Name *"
+                    name="brand"
+                    value={vehicle.brand}
+                    onChange={handleVehicleChange}
+                    className="mb-2"
+                  >
+                    <option value="">Select Brand</option>
+                    {brandOptions.map((brand, idx) => (
+                      <option key={idx} value={brand}>
+                        {brand}
+                      </option>
+                    ))}
+                  </CFormSelect>
+
+                  {/* Model Name */}
+                  <CFormSelect
+                    label="Model Name *"
+                    name="model"
+                    value={vehicle.model}
+                    onChange={handleVehicleChange}
+                    className="mb-2"
+                    disabled={!vehicle.brand}
+                  >
+                    <option value="">Select Model</option>
+                    {vehicle.brand && modelOptions[vehicle.brand]?.map((model, idx) => (
+                      <option key={idx} value={model}>
+                        {model}
+                      </option>
+                    ))}
+                  </CFormSelect>
+
+                  {/* Year */}
+                  <CFormSelect
+                    label="Year"
+                    name="year"
+                    value={vehicle.year}
+                    onChange={handleVehicleChange}
+                    className="mb-2"
+                  >
+                    <option value="">Select Year</option>
+                    {yearOptions.map((year, idx) => (
+                      <option key={idx} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </CFormSelect>
+
+                  {/* Vehicle Seating */}
                   <CFormSelect
                     label="Vehicle Seating"
                     name="vehicleSeating"
                     value={vehicle.vehicleSeating}
-                    onChange={(e) => {
-                      const updated = {
-                        ...vehicle,
-                        vehicleSeating: e.target.value,
-                        vehicleType: `${vehicle.vehicleClass || ""} ${e.target.value}`.trim(),
-                      };
-                      setVehicle(updated);
-                    }}
+                    onChange={handleVehicleChange}
                     className="mb-2"
                   >
                     <option value="">Select Seating</option>
@@ -163,52 +267,55 @@ export default function VehicleDetails() {
                     <option value="5 Seater">5 Seater</option>
                     <option value="6 Seater">6 Seater</option>
                     <option value="7 Seater">7 Seater</option>
+                    <option value="8 Seater">8 Seater</option>
                   </CFormSelect>
 
-                  <CFormSelect
-                    label="Vendor"
-                    name="vendor"
-                    value={vehicle.vendor}
+                  {/* License Plate Number */}
+                  <CFormInput
+                    label="License Plate Number"
+                    name="licensePlate"
+                    value={vehicle.licensePlate}
                     onChange={handleVehicleChange}
                     className="mb-2"
+                    placeholder="e.g., ABC-1234"
+                  />
+
+                  {/* Registration Expiry Date */}
+                  <CFormInput
+                    label="Registration Expiry Date"
+                    name="registrationExpiry"
+                    type="date"
+                    value={vehicle.registrationExpiry}
+                    onChange={handleVehicleChange}
+                    className="mb-2"
+                  />
+                  {expiryStatus && (
+                    <CBadge color={expiryStatus.color} className="mb-3">
+                      {expiryStatus.message}
+                    </CBadge>
+                  )}
+
+                  {/* Assign Driver */}
+                  <CFormSelect
+                    label="Assign Driver"
+                    name="assignedDriver"
+                    value={vehicle.assignedDriver}
+                    onChange={handleVehicleChange}
+                    className="mb-3"
                   >
-                    <option value="">Select Vendor</option>
-                    {vendors.length > 0 ? (
-                      vendors.map((v, idx) => (
-                        <option key={idx} value={v.name}>
-                          {v.company} — {v.name}
+                    <option value="">Select Driver</option>
+                    {drivers.length > 0 ? (
+                      drivers.map((driver, idx) => (
+                        <option key={idx} value={driver.name}>
+                          {driver.name} - {driver.licenseNumber || "No License"}
                         </option>
                       ))
                     ) : (
-                      <option disabled>No vendors available</option>
+                      <option disabled>No drivers available</option>
                     )}
                   </CFormSelect>
 
-                  <CFormInput
-                    label="Owner Name"
-                    name="owner"
-                    value={vehicle.owner}
-                    onChange={handleVehicleChange}
-                    className="mb-2"
-                  />
-
-                  <CFormInput
-                    label="Vehicle Make"
-                    name="make"
-                    value={vehicle.make}
-                    onChange={handleVehicleChange}
-                    className="mb-2"
-                  />
-
-                  <CFormInput
-                    label="Year"
-                    name="year"
-                    value={vehicle.year}
-                    onChange={handleVehicleChange}
-                    className="mb-3"
-                  />
-
-                  <div className="text-end">
+                  <div className="text-center">
                     <CButton color="primary" onClick={handleVehicleSave}>
                       Save Vehicle
                     </CButton>
@@ -259,24 +366,43 @@ export default function VehicleDetails() {
                   <CTable bordered striped>
                     <CTableBody>
                       <CTableRow>
-                        <CTableDataCell>Vehicle Type</CTableDataCell>
-                        <CTableDataCell>{vehicle.vehicleType || "-"}</CTableDataCell>
+                        <CTableDataCell>Vehicle Class</CTableDataCell>
+                        <CTableDataCell>{vehicle.vehicleClass || "-"}</CTableDataCell>
                       </CTableRow>
                       <CTableRow>
-                        <CTableDataCell>Vendor</CTableDataCell>
-                        <CTableDataCell>{vehicle.vendor || "-"}</CTableDataCell>
+                        <CTableDataCell>Brand Name</CTableDataCell>
+                        <CTableDataCell>{vehicle.brand || "-"}</CTableDataCell>
                       </CTableRow>
                       <CTableRow>
-                        <CTableDataCell>Owner</CTableDataCell>
-                        <CTableDataCell>{vehicle.owner || "-"}</CTableDataCell>
-                      </CTableRow>
-                      <CTableRow>
-                        <CTableDataCell>Make</CTableDataCell>
-                        <CTableDataCell>{vehicle.make || "-"}</CTableDataCell>
+                        <CTableDataCell>Model Name</CTableDataCell>
+                        <CTableDataCell>{vehicle.model || "-"}</CTableDataCell>
                       </CTableRow>
                       <CTableRow>
                         <CTableDataCell>Year</CTableDataCell>
                         <CTableDataCell>{vehicle.year || "-"}</CTableDataCell>
+                      </CTableRow>
+                      <CTableRow>
+                        <CTableDataCell>Vehicle Seating</CTableDataCell>
+                        <CTableDataCell>{vehicle.vehicleSeating || "-"}</CTableDataCell>
+                      </CTableRow>
+                      <CTableRow>
+                        <CTableDataCell>License Plate</CTableDataCell>
+                        <CTableDataCell>{vehicle.licensePlate || "-"}</CTableDataCell>
+                      </CTableRow>
+                      <CTableRow>
+                        <CTableDataCell>Registration Expiry</CTableDataCell>
+                        <CTableDataCell>
+                          {vehicle.registrationExpiry || "-"}
+                          {expiryStatus && (
+                            <CBadge color={expiryStatus.color} className="ms-2">
+                              {expiryStatus.message}
+                            </CBadge>
+                          )}
+                        </CTableDataCell>
+                      </CTableRow>
+                      <CTableRow>
+                        <CTableDataCell>Assigned Driver</CTableDataCell>
+                        <CTableDataCell>{vehicle.assignedDriver || "-"}</CTableDataCell>
                       </CTableRow>
                       <CTableRow>
                         <CTableDataCell>Status</CTableDataCell>

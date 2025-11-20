@@ -14,11 +14,22 @@ import {
 
 export default function VendorBookingManagement() {
   const [trips, setTrips] = useState([]);
+  const [ownerData, setOwnerData] = useState([])
  
   useEffect(() => {
     const storedTrips = JSON.parse(localStorage.getItem("trips")) || [];
     setTrips(storedTrips);
   }, []);
+
+  useEffect(() => {
+    try {
+      const storedOwners = JSON.parse(localStorage.getItem('owners') || '[]')
+      setOwnerData(storedOwners)
+    } catch (error) {
+      console.error('Error loading owners:', error)
+      setOwnerData([])
+    }
+  }, [])
 
 
 
@@ -50,7 +61,6 @@ export default function VendorBookingManagement() {
                 <CTableRow>
                   <CTableHeaderCell>Booking Owner</CTableHeaderCell>
                   <CTableHeaderCell>Booking Type</CTableHeaderCell>
-                  <CTableHeaderCell>Start Point</CTableHeaderCell>
                   <CTableHeaderCell>Start Date</CTableHeaderCell>
                   <CTableHeaderCell>Requested Date</CTableHeaderCell>
                   <CTableHeaderCell>Assigned To</CTableHeaderCell>
@@ -61,9 +71,8 @@ export default function VendorBookingManagement() {
                 {trips.length > 0 ? (
                   trips.map((trip, idx) => (
                     <CTableRow key={idx}>
-                      <CTableDataCell>{trip.tripOwner}</CTableDataCell>
+                      <CTableDataCell>{trip.tripOwner || ownerData[0]?.company}</CTableDataCell>
                       <CTableDataCell>{trip.tripType}</CTableDataCell>
-                      <CTableDataCell>{trip.startPoint}</CTableDataCell>
                       <CTableDataCell>{trip.startDate}</CTableDataCell>
                       <CTableDataCell>{trip.requestedDate}</CTableDataCell>
                       <CTableDataCell>{trip.assigned}</CTableDataCell>

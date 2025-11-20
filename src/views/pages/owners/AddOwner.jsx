@@ -15,11 +15,13 @@ export default function OwnerDetails() {
   // Owner State
   const [owner, setOwner] = useState({
     company: "",
-    name: "",
-    address: "",
+    contact: "",
+    type: "",
     email: "",
     mobile: "",
-    type: "",
+    address: "",
+    location: "",
+    country: "",
     status: "Inactive",
   });
 
@@ -34,7 +36,7 @@ export default function OwnerDetails() {
   // Dynamic Booking History
   const [bookingHistory, setBookingHistory] = useState([]);
 
-  // Handle input change (fixed company name issue)
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setOwner((prev) => ({ ...prev, [name]: value }));
@@ -114,10 +116,10 @@ export default function OwnerDetails() {
     const filtered = allBookings.filter(
       (b) =>
         b.ownerCompany.toLowerCase() === owner.company.toLowerCase() ||
-        b.ownerCompany.toLowerCase() === owner.name.toLowerCase()
+        b.ownerCompany.toLowerCase() === owner.contact.toLowerCase()
     );
     setBookingHistory(filtered);
-  }, [owner.company, owner.name]);
+  }, [owner.company, owner.contact]);
 
   const hasBookings = bookingHistory && bookingHistory.length > 0;
 
@@ -132,7 +134,7 @@ export default function OwnerDetails() {
           {/* Accordion Section for Add Trip Owner */}
           <CAccordion alwaysOpen className="mb-3">
             <CAccordionItem itemKey={1}>
-              <CAccordionHeader>Add / Update Trip Owner</CAccordionHeader>
+              <CAccordionHeader>Add Trip Owner</CAccordionHeader>
               <CAccordionBody>
                 <CForm>
                   <CFormInput
@@ -143,19 +145,24 @@ export default function OwnerDetails() {
                     className="mb-2"
                   />
                   <CFormInput
-                    label="Vendor Name"
-                    name="name"
-                    value={owner.name}
+                    label="Company Contact"
+                    name="contact"
+                    value={owner.contact}
                     onChange={handleChange}
                     className="mb-2"
                   />
-                  <CFormInput
-                    label="Address"
-                    name="address"
-                    value={owner.address}
+                  <CFormSelect
+                    label="Company Type"
+                    name="type"
+                    value={owner.type}
                     onChange={handleChange}
                     className="mb-2"
-                  />
+                  >
+                    <option value="">Select Company Type</option>
+                    <option value="Event company">Event company</option>
+                    <option value="Travel Agency">Travel Agency</option>
+                    <option value="Direct Client">Direct Client</option>
+                  </CFormSelect>
                   <CFormInput
                     label="Email"
                     name="email"
@@ -170,18 +177,28 @@ export default function OwnerDetails() {
                     onChange={handleChange}
                     className="mb-2"
                   />
-                  <CFormSelect
-                    label="Type"
-                    name="type"
-                    value={owner.type}
+                  <CFormInput
+                    label="Address"
+                    name="address"
+                    value={owner.address}
                     onChange={handleChange}
                     className="mb-2"
-                  >
-                    <option value="">Select Type</option>
-                    <option value="Manager">Manager</option>
-                    <option value="Staff">Staff</option>
-                  </CFormSelect>
-                  <div className="text-end">
+                  />
+                  <CFormInput
+                    label="Location"
+                    name="location"
+                    value={owner.location}
+                    onChange={handleChange}
+                    className="mb-2"
+                  />
+                  <CFormInput
+                    label="Country"
+                    name="country"
+                    value={owner.country}
+                    onChange={handleChange}
+                    className="mb-2"
+                  />
+                  <div className="text-center">
                     <CButton color="primary" onClick={handleSaveOwner}>
                       Save Trip Owner
                     </CButton>
@@ -205,12 +222,12 @@ export default function OwnerDetails() {
                     <CTableDataCell>{owner.company || "-"}</CTableDataCell>
                   </CTableRow>
                   <CTableRow>
-                    <CTableDataCell>Owner Name</CTableDataCell>
-                    <CTableDataCell>{owner.name || "-"}</CTableDataCell>
+                    <CTableDataCell>Company Contact</CTableDataCell>
+                    <CTableDataCell>{owner.contact || "-"}</CTableDataCell>
                   </CTableRow>
                   <CTableRow>
-                    <CTableDataCell>Address</CTableDataCell>
-                    <CTableDataCell>{owner.address || "-"}</CTableDataCell>
+                    <CTableDataCell>Company Type</CTableDataCell>
+                    <CTableDataCell>{owner.type || "-"}</CTableDataCell>
                   </CTableRow>
                   <CTableRow>
                     <CTableDataCell>Email</CTableDataCell>
@@ -221,8 +238,16 @@ export default function OwnerDetails() {
                     <CTableDataCell>{owner.mobile || "-"}</CTableDataCell>
                   </CTableRow>
                   <CTableRow>
-                    <CTableDataCell>Type</CTableDataCell>
-                    <CTableDataCell>{owner.type || "-"}</CTableDataCell>
+                    <CTableDataCell>Address</CTableDataCell>
+                    <CTableDataCell>{owner.address || "-"}</CTableDataCell>
+                  </CTableRow>
+                  <CTableRow>
+                    <CTableDataCell>Location</CTableDataCell>
+                    <CTableDataCell>{owner.location || "-"}</CTableDataCell>
+                  </CTableRow>
+                  <CTableRow>
+                    <CTableDataCell>Country</CTableDataCell>
+                    <CTableDataCell>{owner.country || "-"}</CTableDataCell>
                   </CTableRow>
                   <CTableRow>
                     <CTableDataCell>Status</CTableDataCell>
@@ -266,9 +291,8 @@ export default function OwnerDetails() {
             </CCard>
           )}
 
-
-       {/* Documents Section — shown only when vendor added */}
-       {ownerAdded && (
+          {/* Documents Section — shown only when vendor added */}
+          {ownerAdded && (
             <CCard className="mb-3">
               <CCardHeader><strong>Documents</strong></CCardHeader>
               <CCardBody>
@@ -327,19 +351,24 @@ export default function OwnerDetails() {
               onChange={handleChange}
             />
             <CFormInput
-              label="Owner Name"
-              name="name"
-              value={owner.name}
+              label="Company Contact"
+              name="contact"
+              value={owner.contact}
               onChange={handleChange}
               className="mt-2"
             />
-            <CFormInput
-              label="Address"
-              name="address"
-              value={owner.address}
+            <CFormSelect
+              label="Company Type"
+              name="type"
+              value={owner.type}
               onChange={handleChange}
               className="mt-2"
-            />
+            >
+              <option value="">Select Company Type</option>
+              <option value="Event company">Event company</option>
+              <option value="Travel Agency">Travel Agency</option>
+              <option value="Direct Client">Direct Client</option>
+            </CFormSelect>
             <CFormInput
               label="Email"
               name="email"
@@ -354,17 +383,27 @@ export default function OwnerDetails() {
               onChange={handleChange}
               className="mt-2"
             />
-            <CFormSelect
-              label="Type"
-              name="type"
-              value={owner.type}
+            <CFormInput
+              label="Address"
+              name="address"
+              value={owner.address}
               onChange={handleChange}
               className="mt-2"
-            >
-              <option value="">Select Type</option>
-              <option value="Manager">Manager</option>
-              <option value="Staff">Staff</option>
-            </CFormSelect>
+            />
+            <CFormInput
+              label="Location"
+              name="location"
+              value={owner.location}
+              onChange={handleChange}
+              className="mt-2"
+            />
+            <CFormInput
+              label="Country"
+              name="country"
+              value={owner.country}
+              onChange={handleChange}
+              className="mt-2"
+            />
           </CForm>
         </CModalBody>
         <CModalFooter>
@@ -399,8 +438,8 @@ export default function OwnerDetails() {
         </CModalFooter>
       </CModal>
      
-       {/* Document Modal */}
-       <CModal visible={showDocModal} onClose={() => setShowDocModal(false)}>
+      {/* Document Modal */}
+      <CModal visible={showDocModal} onClose={() => setShowDocModal(false)}>
         <CModalHeader>Add Document</CModalHeader>
         <CModalBody>
           <form onSubmit={handleDocumentAdd}>

@@ -35,12 +35,14 @@ export default function Owners() {
   const [selectedOwnerIndex, setSelectedOwnerIndex] = useState(null)
   const [editForm, setEditForm] = useState({
     company: "",
-    name: "",
-    address: "",
+    contact: "",
     email: "",
-    mobile: "",
-    type: "",
+    location: "",
     status: "",
+    type: "",
+    address: "",
+    mobile: "",
+    country: "",
   })
 
   // View modal
@@ -78,8 +80,8 @@ export default function Owners() {
 
   // Save edited owner
   const handleSaveEdit = () => {
-    if (!editForm.company || !editForm.name) {
-      alert("Company and Owner Name are required!")
+    if (!editForm.company || !editForm.contact) {
+      alert("Company and Company Contact are required!")
       return
     }
 
@@ -118,7 +120,7 @@ export default function Owners() {
     const filteredBookings = (allBookings.length ? allBookings : sampleBookings).filter(
       (b) =>
         b.ownerCompany.toLowerCase() === owner.company.toLowerCase() ||
-        b.ownerCompany.toLowerCase() === owner.name.toLowerCase()
+        b.ownerCompany.toLowerCase() === owner.contact.toLowerCase()
     )
     setBookingHistory(filteredBookings)
   }
@@ -137,9 +139,10 @@ export default function Owners() {
           <CTable bordered hover responsive align="middle">
             <CTableHead color="light">
               <CTableRow>
-                <CTableHeaderCell>Company</CTableHeaderCell>
-                <CTableHeaderCell>Name</CTableHeaderCell>
-                <CTableHeaderCell>Address</CTableHeaderCell>
+                <CTableHeaderCell>Company Name</CTableHeaderCell>
+                <CTableHeaderCell>Company Contact</CTableHeaderCell>
+                <CTableHeaderCell>Email</CTableHeaderCell>
+                <CTableHeaderCell>Location</CTableHeaderCell>
                 <CTableHeaderCell>Status</CTableHeaderCell>
                 <CTableHeaderCell className="text-center">Actions</CTableHeaderCell>
               </CTableRow>
@@ -149,9 +152,10 @@ export default function Owners() {
               {ownerData.length > 0 ? (
                 ownerData.map((owner, idx) => (
                   <CTableRow key={idx}>
-                    <CTableDataCell>{owner.company}</CTableDataCell>
-                    <CTableDataCell>{owner.name}</CTableDataCell>
-                    <CTableDataCell>{owner.address}</CTableDataCell>
+                    <CTableDataCell>{owner.company || "-"}</CTableDataCell>
+                    <CTableDataCell>{owner.contact || "-"}</CTableDataCell>
+                    <CTableDataCell>{owner.email || "-"}</CTableDataCell>
+                    <CTableDataCell>{owner.location || "-"}</CTableDataCell>
                     <CTableDataCell>
                       <CBadge color={owner.status === "Active" ? "success" : "secondary"}>
                         {owner.status || "Inactive"}
@@ -189,7 +193,7 @@ export default function Owners() {
                 ))
               ) : (
                 <CTableRow>
-                  <CTableDataCell colSpan={8} className="text-center text-muted">
+                  <CTableDataCell colSpan={6} className="text-center text-muted">
                     No owners found
                   </CTableDataCell>
                 </CTableRow>
@@ -214,19 +218,24 @@ export default function Owners() {
               className="mb-2"
             />
             <CFormInput
-              label="Owner Name"
-              name="name"
-              value={editForm.name}
+              label="Company Contact"
+              name="contact"
+              value={editForm.contact}
               onChange={handleEditChange}
               className="mb-2"
             />
-            <CFormInput
-              label="Address"
-              name="address"
-              value={editForm.address}
+            <CFormSelect
+              label="Company Type"
+              name="type"
+              value={editForm.type}
               onChange={handleEditChange}
               className="mb-2"
-            />
+            >
+              <option value="">Select Company Type</option>
+              <option value="Event company">Event company</option>
+              <option value="Travel Agency">Travel Agency</option>
+              <option value="Direct Client">Direct Client</option>
+            </CFormSelect>
             <CFormInput
               label="Email"
               name="email"
@@ -241,17 +250,27 @@ export default function Owners() {
               onChange={handleEditChange}
               className="mb-2"
             />
-            <CFormSelect
-              label="Type"
-              name="type"
-              value={editForm.type}
+            <CFormInput
+              label="Address"
+              name="address"
+              value={editForm.address}
               onChange={handleEditChange}
               className="mb-2"
-            >
-              <option value="">Select Type</option>
-              <option value="Manager">Manager</option>
-              <option value="Staff">Staff</option>
-            </CFormSelect>
+            />
+            <CFormInput
+              label="Location"
+              name="location"
+              value={editForm.location}
+              onChange={handleEditChange}
+              className="mb-2"
+            />
+            <CFormInput
+              label="Country"
+              name="country"
+              value={editForm.country}
+              onChange={handleEditChange}
+              className="mb-2"
+            />
             <CFormSelect
               label="Status"
               name="status"
@@ -285,34 +304,42 @@ export default function Owners() {
               <CTable bordered striped>
                 <CTableBody>
                   <CTableRow>
-                    <CTableDataCell>Company</CTableDataCell>
-                    <CTableDataCell>{viewOwner.company}</CTableDataCell>
+                    <CTableDataCell>Company Name</CTableDataCell>
+                    <CTableDataCell>{viewOwner.company || "-"}</CTableDataCell>
                   </CTableRow>
                   <CTableRow>
-                    <CTableDataCell>Name</CTableDataCell>
-                    <CTableDataCell>{viewOwner.name}</CTableDataCell>
+                    <CTableDataCell>Company Contact</CTableDataCell>
+                    <CTableDataCell>{viewOwner.contact || "-"}</CTableDataCell>
                   </CTableRow>
                   <CTableRow>
-                    <CTableDataCell>Address</CTableDataCell>
-                    <CTableDataCell>{viewOwner.address}</CTableDataCell>
+                    <CTableDataCell>Company Type</CTableDataCell>
+                    <CTableDataCell>{viewOwner.type || "-"}</CTableDataCell>
                   </CTableRow>
                   <CTableRow>
                     <CTableDataCell>Email</CTableDataCell>
                     <CTableDataCell>{viewOwner.email || "-"}</CTableDataCell>
                   </CTableRow>
                   <CTableRow>
-                    <CTableDataCell>Mobile</CTableDataCell>
+                    <CTableDataCell>Mobile Number</CTableDataCell>
                     <CTableDataCell>{viewOwner.mobile || "-"}</CTableDataCell>
                   </CTableRow>
                   <CTableRow>
-                    <CTableDataCell>Type</CTableDataCell>
-                    <CTableDataCell>{viewOwner.type || "-"}</CTableDataCell>
+                    <CTableDataCell>Address</CTableDataCell>
+                    <CTableDataCell>{viewOwner.address || "-"}</CTableDataCell>
+                  </CTableRow>
+                  <CTableRow>
+                    <CTableDataCell>Location</CTableDataCell>
+                    <CTableDataCell>{viewOwner.location || "-"}</CTableDataCell>
+                  </CTableRow>
+                  <CTableRow>
+                    <CTableDataCell>Country</CTableDataCell>
+                    <CTableDataCell>{viewOwner.country || "-"}</CTableDataCell>
                   </CTableRow>
                   <CTableRow>
                     <CTableDataCell>Status</CTableDataCell>
                     <CTableDataCell>
                       <CBadge color={viewOwner.status === "Active" ? "success" : "secondary"}>
-                        {viewOwner.status}
+                        {viewOwner.status || "Inactive"}
                       </CBadge>
                     </CTableDataCell>
                   </CTableRow>

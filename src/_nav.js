@@ -10,6 +10,7 @@ import {
   cilSettings,
   cilUserPlus,
   cilTouchApp,
+  cilLayers,
   cilPaperPlane,
 } from '@coreui/icons'
 import { CNavItem, CNavTitle } from '@coreui/react'
@@ -45,7 +46,7 @@ if (role === 'logistics') {
     },
     {
       component: CNavItem,
-      name: 'Trips',
+      name: 'Quotes',
       to: '/logistics/trips',
       icon: <CIcon icon={cilClipboard} customClassName="nav-icon" />,
     },
@@ -54,6 +55,12 @@ if (role === 'logistics') {
       name: 'Bookings',
       to: '/logistics/bookings',
       icon: <CIcon icon={cilTag} customClassName="nav-icon" />,
+    },
+    {
+      component: CNavItem,
+      name: 'Trip Types',
+      to: '/logistics/triptypes',
+      icon: <CIcon icon={cilLayers} customClassName="nav-icon" />,
     },
     {
       component: CNavItem,
@@ -153,6 +160,12 @@ if (role === 'logistics') {
       to: '/vendor/bookings',
       icon: <CIcon icon={cilTag} customClassName="nav-icon" />,
     },
+    // {
+    //   component: CNavItem,
+    //   name: 'Trip Types',
+    //   to: '/vendor/triptypes',
+    //   icon: <CIcon icon={cilLayers} customClassName="nav-icon" />,
+    // },
     {
       component: CNavItem,
       name: 'Vehicles',

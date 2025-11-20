@@ -22,21 +22,23 @@ import {
   CTableBody,
   CTableRow,
   CTableDataCell,
+  CSpinner,
+  CAlert
 } from "@coreui/react";
 
 export default function DriverDetails() {
   const navigate = useNavigate();
 
   const [driver, setDriver] = useState({
-    name: "",
-    type: "",
-    contact: "",
-    languages: "",
-    experience: "",
+    driverId: "",
+    driverType: "",
+    driverName: "",
+    language: "",
     location: "",
-    license: "",
-    vendor: "",
-    status: "Inactive",
+    licenseNumber: "",
+    contactNumber: "",
+    experience:"",
+    vendorId: ""
   });
 
   const [vendors, setVendors] = useState([]);
@@ -45,11 +47,27 @@ export default function DriverDetails() {
   const [newReview, setNewReview] = useState({ rating: 0, comment: "" });
   const [driverAdded, setDriverAdded] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // Load vendors from localStorage
   useEffect(() => {
     const storedVendors = JSON.parse(localStorage.getItem("vendors") || "[]");
     setVendors(storedVendors);
+    
+    // Generate unique IDs for driverId and renderId
+    const generateId = () => {
+      return Array.from({length: 4}, () => 
+        Math.floor(Math.random() * 100).toString().padStart(2, '0')
+      ).join(':');
+    };
+    
+    setDriver(prev => ({
+      ...prev,
+      driverId: generateId(),
+      vendorId: generateId()
+    }));
   }, []);
 
   const handleChange = (e) => {
@@ -91,27 +109,101 @@ export default function DriverDetails() {
     return (total / reviews.length).toFixed(2);
   };
 
-  const handleSaveDriver = () => {
-    if (!driver.name || !driver.contact || !driver.type) {
-      alert("Please fill out required driver details.");
+  // API call to save driver
+  const saveDriverToAPI = async (driverData) => {
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await fetch('/api/Driver/SaveDriver', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(driverData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setSuccess("Driver saved successfully via API!");
+      return result;
+    } catch (error) {
+      console.error('Error saving driver:', error);
+      setError(`Failed to save driver: ${error.message}`);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveDriver = async () => {
+    // Validate required fields based on API schema
+    if (!driver.driverId || !driver.driverType || !driver.contactNumber) {
+      alert("Please fill out required driver details (Driver ID, Driver Type, and Contact Number).");
       return;
     }
 
-    const existingDrivers = JSON.parse(localStorage.getItem("drivers") || "[]");
-    const newDriver = { ...driver, documents, reviews };
-    localStorage.setItem("drivers", JSON.stringify([...existingDrivers, newDriver]));
+    try {
+      // Prepare data for API according to the schema
+      const apiDriverData = {
+        driverId: driver.driverId,
+        driverType: driver.driverType,
+        driverName: driver.driverName,
+        language: driver.language || driver.driverId, // Fallback to driverId if not provided
+        location: driver.location || "",
+        licenseNumber: driver.licenseNumber|| "",
+        contactNumber: driver.contactNumber,
+        experience: driver.experience || "",
+        vendorId: driver.vendorId || driver.driverId // Fallback to driverId if not provided
+      };
 
-    setDriverAdded(true);
-    alert("Driver details added successfully!");
+      // Save to API
+      await saveDriverToAPI(apiDriverData);
+
+      // Also save to localStorage for local state management
+      const existingDrivers = JSON.parse(localStorage.getItem("drivers") || "[]");
+      const newDriver = { 
+        ...driver, 
+        documents, 
+        reviews,
+        status: "Inactive",
+        // Map API fields to display fields
+        name: driver.driverName || "Unnamed Driver",
+        type: driver.driverType,
+        contact: driver.contactNumber,
+        languages: driver.language,
+        experience: driver.experience,
+        license: driver.licenseNumber
+      };
+      
+      localStorage.setItem("drivers", JSON.stringify([...existingDrivers, newDriver]));
+
+      setDriverAdded(true);
+    } catch (error) {
+      // Error is already handled in saveDriverToAPI
+      console.error('Failed to save driver:', error);
+    }
   };
 
-  const handleSaveAll = () => {
-    if (!driverAdded) return alert("Please add driver details first.");
-    if (documents.length === 0) return alert("Please upload at least one document.");
+  const handleSaveAll = async () => {
+    if (!driverAdded) {
+      alert("Please add driver details first.");
+      return;
+    }
+    
+    if (documents.length === 0) {
+      alert("Please upload at least one document.");
+      return;
+    }
+
     setShowFeedback(true);
   };
 
-  const handleActivationDecision = (activate) => {
+  const handleActivationDecision = async (activate) => {
     const updatedStatus = activate ? "Active" : "Inactive";
     const allDrivers = JSON.parse(localStorage.getItem("drivers") || "[]");
     const lastDriverIndex = allDrivers.length - 1;
@@ -122,7 +214,13 @@ export default function DriverDetails() {
     }
 
     setShowFeedback(false);
-    navigate("/logistics/drivers");
+    
+    // Show success message before navigating
+    setSuccess(`Driver ${activate ? 'activated' : 'created'} successfully!`);
+    
+    setTimeout(() => {
+      navigate("/logistics/drivers");
+    }, 1500);
   };
 
   return (
@@ -131,27 +229,48 @@ export default function DriverDetails() {
         <CCardBody>
           <h5 className="mb-3">Driver Management</h5>
 
+          {/* Display loading and error/success messages */}
+          {loading && (
+            <CAlert color="info" className="d-flex align-items-center">
+              <CSpinner size="sm" className="me-2" />
+              Saving driver to API...
+            </CAlert>
+          )}
+          
+          {error && (
+            <CAlert color="danger" dismissible onClose={() => setError("")}>
+              {error}
+            </CAlert>
+          )}
+          
+          {success && (
+            <CAlert color="success" dismissible onClose={() => setSuccess("")}>
+              {success}
+            </CAlert>
+          )}
+
           {/* Accordion Section */}
           <CAccordion alwaysOpen>
 
             {/* 1️⃣ Add Driver */}
             <CAccordionItem itemKey="1">
-              <CAccordionHeader>Add Driver</CAccordionHeader>
+              <CAccordionHeader>Add / Update Driver</CAccordionHeader>
               <CAccordionBody>
                 <CRow className="mb-3">
                   <CCol md={6}>
                     <CFormInput
-                      label="Driver Name"
-                      name="name"
-                      value={driver.name}
+                      label="Driver ID"
+                      name="driverId"
+                      value={driver.driverId}
                       onChange={handleChange}
+                      placeholder="Format: 21:74:83:07"
                     />
                   </CCol>
                   <CCol md={6}>
                     <CFormSelect
                       label="Driver Type"
-                      name="type"
-                      value={driver.type}
+                      name="driverType"
+                      value={driver.driverType}
                       onChange={handleChange}
                     >
                       <option value="">Select Type</option>
@@ -164,17 +283,18 @@ export default function DriverDetails() {
                 <CRow className="mb-3">
                   <CCol md={6}>
                     <CFormInput
-                      label="Contact"
-                      name="contact"
-                      value={driver.contact}
+                      label="Contact Number"
+                      name="contactNumber"
+                      value={driver.contactNumber}
                       onChange={handleChange}
+                      placeholder="Contact Number"
                     />
                   </CCol>
                   <CCol md={6}>
-                    <CFormSelect
+                  <CFormSelect
                       label="Languages Known"
                       name="languages"
-                      value={driver.languages}
+                      value={driver.language}
                       onChange={handleChange}
                     >
                       <option value="">Select Language</option>
@@ -185,16 +305,7 @@ export default function DriverDetails() {
                   </CCol>
                 </CRow>
                 <CRow className="mb-3">
-                  <CCol md={4}>
-                    <CFormInput
-                      label="Experience (years)"
-                      name="experience"
-                      type="number"
-                      value={driver.experience}
-                      onChange={handleChange}
-                    />
-                  </CCol>
-                  <CCol md={4}>
+                  <CCol md={6}>
                     <CFormInput
                       label="Location"
                       name="location"
@@ -202,25 +313,44 @@ export default function DriverDetails() {
                       onChange={handleChange}
                     />
                   </CCol>
-                  <CCol md={4}>
+                  <CCol md={6}>
                     <CFormInput
                       label="License Number"
-                      name="license"
-                      value={driver.license}
+                      name="licenseNumber"
+                      value={driver.licenseNumber}
                       onChange={handleChange}
                     />
                   </CCol>
                 </CRow>
+                <CRow className="mb-3">
+                  <CCol md={6}>
+                  <CFormInput
+                      label="Experience (years)"
+                      name="experience"
+                      type="number"
+                      value={driver.experience}
+                      onChange={handleChange}
+                    />
+                  </CCol>
+                  <CCol md={6}>
+                    <CFormInput
+                      label="Vendor ID"
+                      name="vendorId"
+                      value={driver.vendorId}
+                      onChange={handleChange}
+                      placeholder="Format: 21:74:83:07"
+                    />
+                  </CCol>
+                </CRow>
 
-                {/* Vendor Selection */}
+                {/* Vendor Selection (for local display only - not in API) */}
                 <CRow className="mb-3">
                   <CCol md={6}>
                     {vendors.length > 0 ? (
                       <CFormSelect
-                        label="Select Vendor"
+                        label="Select Vendor (Local)"
                         name="vendor"
-                        value={driver.vendor}
-                        onChange={handleChange}
+                        onChange={(e) => setDriver({...driver, vendor: e.target.value})}
                       >
                         <option value="">Select Vendor</option>
                         {vendors.map((v, idx) => (
@@ -235,9 +365,13 @@ export default function DriverDetails() {
                   </CCol>
                 </CRow>
 
-                <div className="text-center">
-                  <CButton color="primary" onClick={handleSaveDriver}>
-                    Save Driver
+                <div className="text-end">
+                  <CButton 
+                    color="primary" 
+                    onClick={handleSaveDriver}
+                    disabled={loading}
+                  >
+                    {loading ? <CSpinner size="sm" /> : "Save Driver"}
                   </CButton>
                 </div>
               </CAccordionBody>
@@ -249,18 +383,18 @@ export default function DriverDetails() {
                 <CAccordionHeader>Driver Details Summary</CAccordionHeader>
                 <CAccordionBody>
                   <CTable bordered striped>
-                    <CTableBody>
+                  <CTableBody>
                       <CTableRow>
                         <CTableDataCell>Name</CTableDataCell>
-                        <CTableDataCell>{driver.name}</CTableDataCell>
+                        <CTableDataCell>{driver.driverName}</CTableDataCell>
                       </CTableRow>
                       <CTableRow>
                         <CTableDataCell>Type</CTableDataCell>
-                        <CTableDataCell>{driver.type}</CTableDataCell>
+                        <CTableDataCell>{driver.driverType}</CTableDataCell>
                       </CTableRow>
                       <CTableRow>
                         <CTableDataCell>Contact</CTableDataCell>
-                        <CTableDataCell>{driver.contact}</CTableDataCell>
+                        <CTableDataCell>{driver.contactNumber}</CTableDataCell>
                       </CTableRow>
                       <CTableRow>
                         <CTableDataCell>Experience</CTableDataCell>
@@ -268,11 +402,11 @@ export default function DriverDetails() {
                       </CTableRow>
                       <CTableRow>
                         <CTableDataCell>License</CTableDataCell>
-                        <CTableDataCell>{driver.license}</CTableDataCell>
+                        <CTableDataCell>{driver.licenseNumber}</CTableDataCell>
                       </CTableRow>
                       <CTableRow>
                         <CTableDataCell>Vendor</CTableDataCell>
-                        <CTableDataCell>{driver.vendor || "-"}</CTableDataCell>
+                        <CTableDataCell>{driver.vendorId || "-"}</CTableDataCell>
                       </CTableRow>
                       <CTableRow>
                         <CTableDataCell>Status</CTableDataCell>

@@ -32,24 +32,48 @@ export default function VendorVehicles() {
   const [vehicleData, setVehicleData] = useState([]);
   const [editModal, setEditModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
-  const [vendors, setVendors] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [editForm, setEditForm] = useState({
-    vehicleType: "",
     vehicleClass: "",
-    vehicleSeating: "",
-    owner: "",
-    make: "",
+    brand: "",
+    model: "",
     year: "",
-    vendor: "",
+    licensePlate: "",
     status: "Inactive",
   });
 
+  // Vehicle options
+  const vehicleClassOptions = ["Standard", "Luxury", "Premium", "Economy", "SUV", "Van"];
+  
+  const brandOptions = [
+    "Toyota", "Honda", "Ford", "BMW", "Mercedes-Benz", 
+    "Audi", "Hyundai", "Kia", "Nissan", "Volkswagen",
+    "Chevrolet", "Mazda", "Lexus", "Volvo", "Jeep"
+  ];
+
+  const modelOptions = {
+    "Toyota": ["Camry", "Corolla", "RAV4", "Highlander", "Prius", "Hilux", "Innova"],
+    "Honda": ["Civic", "Accord", "CR-V", "Pilot", "City", "Amaze"],
+    "Ford": ["F-150", "Explorer", "Escape", "Mustang", "Focus", "Endeavour"],
+    "BMW": ["3 Series", "5 Series", "X3", "X5", "7 Series", "X1"],
+    "Mercedes-Benz": ["C-Class", "E-Class", "S-Class", "GLC", "GLE", "A-Class"],
+    "Audi": ["A4", "A6", "Q5", "Q7", "A3", "Q3"],
+    "Hyundai": ["Elantra", "Tucson", "Santa Fe", "Creta", "i20", "Verna"],
+    "Kia": ["Seltos", "Sonet", "Carnival", "Sorento", "Rio", "Carens"],
+    "Nissan": ["Altima", "Sentra", "Rogue", "Pathfinder", "X-Trail", "Magnite"],
+    "Volkswagen": ["Golf", "Passat", "Tiguan", "Jetta", "Polo", "Virtus"],
+    "Chevrolet": ["Malibu", "Equinox", "Tahoe", "Spark", "Trax", "Trailblazer"],
+    "Mazda": ["Mazda3", "Mazda6", "CX-5", "CX-9", "CX-30", "CX-3"],
+    "Lexus": ["ES", "RX", "NX", "LS", "UX", "LX"],
+    "Volvo": ["XC60", "XC90", "S60", "S90", "XC40", "V90"],
+    "Jeep": ["Wrangler", "Grand Cherokee", "Compass", "Renegade", "Cherokee", "Meridian"]
+  };
+
+  const yearOptions = Array.from({ length: 11 }, (_, i) => (2025 - i).toString());
+
   useEffect(() => {
     const savedVehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
-    const vendorList = JSON.parse(localStorage.getItem("vendors") || "[]");
     setVehicleData(savedVehicles);
-    setVendors(vendorList);
   }, []);
 
   const handleAddVehicle = () => navigate("/vendor/addvehicle");
@@ -74,21 +98,21 @@ export default function VendorVehicles() {
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    setEditForm((prev) => ({
-      ...prev,
-      [name]: value,
-      vehicleType:
-        name === "vehicleClass"
-          ? `${value} ${prev.vehicleSeating || ""}`.trim()
-          : name === "vehicleSeating"
-          ? `${prev.vehicleClass || ""} ${value}`.trim()
-          : prev.vehicleType,
-    }));
+    
+    if (name === "brand") {
+      setEditForm(prev => ({ 
+        ...prev, 
+        brand: value,
+        model: "" // Reset model when brand changes
+      }));
+    } else {
+      setEditForm(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSaveEdit = () => {
     const updated = vehicleData.map((v) =>
-      v.vehicleType === selectedVehicle.vehicleType ? { ...v, ...editForm } : v
+      v === selectedVehicle ? { ...editForm } : v
     );
     setVehicleData(updated);
     localStorage.setItem("vehicles", JSON.stringify(updated));
@@ -108,9 +132,10 @@ export default function VendorVehicles() {
           <CTable hover responsive bordered>
             <CTableHead color="light">
               <CTableRow>
-                <CTableHeaderCell>Type</CTableHeaderCell>
-                <CTableHeaderCell>Owner</CTableHeaderCell>
-                <CTableHeaderCell>Make</CTableHeaderCell>
+                <CTableHeaderCell>Vehicle Class</CTableHeaderCell>
+                <CTableHeaderCell>Brand Name</CTableHeaderCell>
+                <CTableHeaderCell>Model Name</CTableHeaderCell>
+                <CTableHeaderCell>Year</CTableHeaderCell>
                 <CTableHeaderCell>Status</CTableHeaderCell>
                 <CTableHeaderCell className="text-center">Actions</CTableHeaderCell>
               </CTableRow>
@@ -119,12 +144,13 @@ export default function VendorVehicles() {
               {vehicleData.length ? (
                 vehicleData.map((v, idx) => (
                   <CTableRow key={idx}>
-                    <CTableDataCell>{v.vehicleType}</CTableDataCell>
-                    <CTableDataCell>{v.owner}</CTableDataCell>
-                    <CTableDataCell>{v.make}</CTableDataCell>
+                    <CTableDataCell>{v.vehicleClass || "-"}</CTableDataCell>
+                    <CTableDataCell>{v.brand || "-"}</CTableDataCell>
+                    <CTableDataCell>{v.model || "-"}</CTableDataCell>
+                    <CTableDataCell>{v.year || "-"}</CTableDataCell>
                     <CTableDataCell>
                       <CBadge color={v.status === "Active" ? "success" : "secondary"}>
-                        {v.status}
+                        {v.status || "Inactive"}
                       </CBadge>
                     </CTableDataCell>
                     <CTableDataCell className="text-center">
@@ -184,78 +210,67 @@ export default function VendorVehicles() {
                   value={editForm.vehicleClass}
                   onChange={handleEditChange}
                 >
-                  <option value="">Select Class</option>
-                  <option value="Normal">Normal</option>
-                  <option value="Luxury">Luxury</option>
+                  <option value="">Select Vehicle Class</option>
+                  {vehicleClassOptions.map((option, idx) => (
+                    <option key={idx} value={option}>{option}</option>
+                  ))}
                 </CFormSelect>
               </CCol>
               <CCol md={6}>
-                <CFormLabel>Vehicle Seating</CFormLabel>
+                <CFormLabel>Brand Name</CFormLabel>
                 <CFormSelect
-                  name="vehicleSeating"
-                  value={editForm.vehicleSeating}
+                  name="brand"
+                  value={editForm.brand}
                   onChange={handleEditChange}
                 >
-                  <option value="">Select Seating</option>
-                  <option value="3 Seater">3 Seater</option>
-                  <option value="4 Seater">4 Seater</option>
-                  <option value="5 Seater">5 Seater</option>
-                  <option value="6 Seater">6 Seater</option>
-                  <option value="7 Seater">7 Seater</option>
+                  <option value="">Select Brand</option>
+                  {brandOptions.map((brand, idx) => (
+                    <option key={idx} value={brand}>{brand}</option>
+                  ))}
                 </CFormSelect>
               </CCol>
             </CRow>
 
             <CRow className="mb-3">
               <CCol md={6}>
-                <CFormLabel>Vendor</CFormLabel>
+                <CFormLabel>Model Name</CFormLabel>
                 <CFormSelect
-                  name="vendor"
-                  value={editForm.vendor}
+                  name="model"
+                  value={editForm.model}
                   onChange={handleEditChange}
+                  disabled={!editForm.brand}
                 >
-                  <option value="">Select Vendor</option>
-                  {vendors.length > 0 ? (
-                    vendors.map((v, idx) => (
-                      <option key={idx} value={v.name}>
-                        {v.company} — {v.name}
-                      </option>
-                    ))
-                  ) : (
-                    <option disabled>No vendors available</option>
-                  )}
+                  <option value="">Select Model</option>
+                  {editForm.brand && modelOptions[editForm.brand]?.map((model, idx) => (
+                    <option key={idx} value={model}>{model}</option>
+                  ))}
                 </CFormSelect>
-              </CCol>
-              <CCol md={6}>
-                <CFormLabel>Owner</CFormLabel>
-                <CFormInput
-                  name="owner"
-                  value={editForm.owner}
-                  onChange={handleEditChange}
-                />
-              </CCol>
-            </CRow>
-
-            <CRow className="mb-3">
-              <CCol md={6}>
-                <CFormLabel>Make</CFormLabel>
-                <CFormInput
-                  name="make"
-                  value={editForm.make}
-                  onChange={handleEditChange}
-                />
               </CCol>
               <CCol md={6}>
                 <CFormLabel>Year</CFormLabel>
-                <CFormInput
+                <CFormSelect
                   name="year"
                   value={editForm.year}
                   onChange={handleEditChange}
-                />
+                >
+                  <option value="">Select Year</option>
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </CFormSelect>
               </CCol>
             </CRow>
 
-            <CRow>
+            <CRow className="mb-3">
+              <CCol md={6}>
+                <CFormLabel>License Plate</CFormLabel>
+                <CFormInput
+                  name="licensePlate"
+                  value={editForm.licensePlate}
+                  onChange={handleEditChange}
+                  placeholder="e.g., ABC-1234"
+                />
+              </CCol>
               <CCol md={6}>
                 <CFormLabel>Status</CFormLabel>
                 <CFormSelect
@@ -288,19 +303,33 @@ export default function VendorVehicles() {
         <CModalBody>
           {selectedVehicle ? (
             <>
-              <p><strong>Vehicle Type:</strong> {selectedVehicle.vehicleType}</p>
-              <p><strong>Vehicle Class:</strong> {selectedVehicle.vehicleClass}</p>
-              <p><strong>Seating:</strong> {selectedVehicle.vehicleSeating}</p>
-              <p><strong>Vendor:</strong> {selectedVehicle.vendor}</p>
-              <p><strong>Owner:</strong> {selectedVehicle.owner}</p>
-              <p><strong>Make:</strong> {selectedVehicle.make}</p>
-              <p><strong>Year:</strong> {selectedVehicle.year}</p>
-              <p>
-                <strong>Status:</strong>{" "}
-                <CBadge color={selectedVehicle.status === "Active" ? "success" : "secondary"}>
-                  {selectedVehicle.status}
-                </CBadge>
-              </p>
+              <CRow className="mb-3">
+                <CCol md={6}>
+                  <strong>Vehicle Class:</strong> {selectedVehicle.vehicleClass || "-"}
+                </CCol>
+                <CCol md={6}>
+                  <strong>Brand Name:</strong> {selectedVehicle.brand || "-"}
+                </CCol>
+              </CRow>
+              <CRow className="mb-3">
+                <CCol md={6}>
+                  <strong>Model Name:</strong> {selectedVehicle.model || "-"}
+                </CCol>
+                <CCol md={6}>
+                  <strong>Year:</strong> {selectedVehicle.year || "-"}
+                </CCol>
+              </CRow>
+              <CRow className="mb-3">
+                <CCol md={6}>
+                  <strong>License Plate:</strong> {selectedVehicle.licensePlate || "-"}
+                </CCol>
+                <CCol md={6}>
+                  <strong>Status:</strong>{" "}
+                  <CBadge color={selectedVehicle.status === "Active" ? "success" : "secondary"}>
+                    {selectedVehicle.status || "Inactive"}
+                  </CBadge>
+                </CCol>
+              </CRow>
             </>
           ) : (
             <p>No vehicle selected.</p>

@@ -28,6 +28,7 @@ export default function BookingsListings() {
   const [vehicles, setVehicles] = useState([]);
   const [tripCosts, setTripCosts] = useState([]);
   const [tripIncharges, setTripIncharges] = useState([]);
+  const [ownerData, setOwnerData] = useState([])
 
   // Load data
   useEffect(() => {
@@ -38,6 +39,16 @@ export default function BookingsListings() {
     setTripCosts(JSON.parse(localStorage.getItem("tripCosts")) || []);
     setTripIncharges(JSON.parse(localStorage.getItem("tripIncharges")) || []);
   }, []);
+
+  useEffect(() => {
+    try {
+      const storedOwners = JSON.parse(localStorage.getItem('owners') || '[]')
+      setOwnerData(storedOwners)
+    } catch (error) {
+      console.error('Error loading owners:', error)
+      setOwnerData([])
+    }
+  }, [])
 
   // Badge color logic
   const getStatusBadge = (status) => {
@@ -126,7 +137,6 @@ export default function BookingsListings() {
               <CTableRow>
                 <CTableHeaderCell>Booking Owner</CTableHeaderCell>
                 <CTableHeaderCell>Booking Type</CTableHeaderCell>
-                <CTableHeaderCell>Start Point</CTableHeaderCell>
                 <CTableHeaderCell>Start Date</CTableHeaderCell>
                 <CTableHeaderCell>Requested Date</CTableHeaderCell>
                 <CTableHeaderCell>Assigned To</CTableHeaderCell>
@@ -139,9 +149,8 @@ export default function BookingsListings() {
               {trips.length > 0 ? (
                 trips.map((trip, idx) => (
                   <CTableRow key={idx}>
-                    <CTableDataCell>{trip.tripOwner}</CTableDataCell>
+                    <CTableDataCell>{trip.tripOwner || ownerData[0]?.company}</CTableDataCell>
                     <CTableDataCell>{trip.tripType}</CTableDataCell>
-                    <CTableDataCell>{trip.startPoint}</CTableDataCell>
                     <CTableDataCell>{trip.startDate}</CTableDataCell>
                     <CTableDataCell>{trip.requestedDate}</CTableDataCell>
                     <CTableDataCell>{trip.assigned}</CTableDataCell>
@@ -211,8 +220,6 @@ export default function BookingsListings() {
               <option value="Halfday Trip">Halfday Trip</option>
               <option value="Fullday Trip">Fullday Trip</option>
             </CFormSelect>
-            <CFormInput type="text" label="Start Point" name="startPoint" value={editTrip.startPoint || ""} onChange={handleEditChange} />
-            <CFormInput type="text" label="End Point" name="endPoint" value={editTrip.endPoint || ""} onChange={handleEditChange} />
             <CFormInput type="date" label="Start Date" name="startDate" value={editTrip.startDate || ""} onChange={handleEditChange} />
             <CFormInput type="date" label="Requested Date" name="requestedDate" value={editTrip.requestedDate || ""} onChange={handleEditChange} />
             <CFormSelect label="Status" name="status" value={editTrip.status || ""} onChange={handleEditChange}>
@@ -239,7 +246,6 @@ export default function BookingsListings() {
             <>
               <h6>Booking Owner: {viewTrip.tripOwner}</h6>
               <p><strong>Booking Type:</strong> {viewTrip.tripType}</p>
-              <p><strong>Start Point:</strong> {viewTrip.startPoint} → {viewTrip.endPoint}</p>
               <p><strong>Start Date:</strong> {viewTrip.startDate}</p>
               <p><strong>Requested Date:</strong> {viewTrip.requestedDate}</p>
               <p><strong>Status:</strong> {viewTrip.status}</p>

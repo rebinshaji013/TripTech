@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   CAvatar,
   CButton,
@@ -136,6 +136,36 @@ const Dashboard = () => {
       activity: 'Last week',
     },
   ]
+
+useEffect(() => {
+    const payload = {
+      email: "john@company.com",
+      full_name: "John Doe",
+      company_name: "ABC Transport Co.",
+      role: "logistics",
+      phone: "+1-234-567-8900",
+      address: "123 Main St, City"
+    };
+
+    const registerUser = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        console.log("API Response:", data);
+      } catch (err) {
+        console.error("Error calling register API:", err);
+      }
+    };
+
+    registerUser();
+  }, []);
 
   return (
     <>
